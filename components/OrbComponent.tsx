@@ -16,6 +16,7 @@ interface OrbProps {
   noiseStrength?: number;
   distortionStrength?: number;
   vertexColors?: boolean;
+  voiceMode?: boolean; // Add this new prop
 }
 
 export const OrbComponent: React.FC<OrbProps> = ({
@@ -30,6 +31,7 @@ export const OrbComponent: React.FC<OrbProps> = ({
   noiseStrength = 0.12, // Increased noise for more organic feel
   distortionStrength = 0.5, // Stronger distortion on interaction
   vertexColors = false,
+  voiceMode = false, // Default to false if not provided
 }) => {
   const pointsRef = useRef<THREE.Points>(null);
   const [hovered, setHovered] = useState(false);
@@ -158,11 +160,15 @@ export const OrbComponent: React.FC<OrbProps> = ({
       }
 
       // Pulse size effect
+      const baseSize = grainSize * (voiceMode ? 1.2 : 1.0);
+      const pulseFactor = voiceMode ? pulsateStrength * 1.5 : pulsateStrength;
+
       materialRef.current.size =
-        grainSize *
-        (1 +
-          Math.sin(time.current * pulsateSpeed * Math.PI * 2) *
-            pulsateStrength);
+        baseSize *
+        (1 + Math.sin(time.current * pulsateSpeed * Math.PI * 2) * pulseFactor);
+
+      // Adjust opacity based on voice mode
+      materialRef.current.opacity = voiceMode ? 0.95 : 0.9;
 
       // Make sure points are perfectly round
       materialRef.current.alphaTest = 0.01;
@@ -173,11 +179,14 @@ export const OrbComponent: React.FC<OrbProps> = ({
     const positions = pointsRef.current.geometry.attributes.position
       .array as Float32Array;
 
-    // Slow rotation around different axes for more organic movement
-    pointsRef.current.rotation.y += delta * rotationSpeed;
-    pointsRef.current.rotation.z += delta * rotationSpeed * 0.3;
+    // Adjust rotation speed in voice mode
+    const currentRotationSpeed = voiceMode
+      ? rotationSpeed * 1.2
+      : rotationSpeed;
+    pointsRef.current.rotation.y += delta * currentRotationSpeed;
+    pointsRef.current.rotation.z += delta * currentRotationSpeed * 0.3;
 
-    // Apply distortion and animation to each grain
+    // Apply enhanced distortion and animation in voice mode
     for (let i = 0; i < grainCount; i++) {
       const i3 = i * 3;
 
@@ -186,24 +195,29 @@ export const OrbComponent: React.FC<OrbProps> = ({
       const initialY = initialPositions[i3 + 1];
       const initialZ = initialPositions[i3 + 2];
 
-      // Simplex-like noise over time (approximated)
+      // Enhance noise effects in voice mode
+      const currentNoiseStrength = voiceMode
+        ? noiseStrength * 1.3
+        : noiseStrength;
+      const voicePulse = voiceMode ? Math.sin(time.current * 2) * 0.05 : 0;
+
       const noiseX =
         Math.sin(initialX * 2 + time.current) *
         Math.sin(initialY * 3 + time.current * 0.7) *
-        noiseStrength;
+        (currentNoiseStrength + voicePulse);
 
       const noiseY =
         Math.sin(initialY * 2 + time.current * 0.8) *
         Math.sin(initialZ * 3 + time.current * 0.6) *
-        noiseStrength;
+        (currentNoiseStrength + voicePulse);
 
       const noiseZ =
         Math.sin(initialZ * 2 + time.current * 0.9) *
         Math.sin(initialX * 3 + time.current * 0.5) *
-        noiseStrength;
+        (currentNoiseStrength + voicePulse);
 
-      // Add subtle clustering effect - grains drift slightly toward neighbors
-      const clusterFactor = 0.02;
+      // Enhanced clustering effect in voice mode
+      const clusterFactor = voiceMode ? 0.03 : 0.02;
       const clusterX = Math.sin(initialX * 10 + initialY * 8) * clusterFactor;
       const clusterY = Math.sin(initialY * 10 + initialZ * 8) * clusterFactor;
       const clusterZ = Math.sin(initialZ * 10 + initialX * 8) * clusterFactor;
@@ -220,8 +234,12 @@ export const OrbComponent: React.FC<OrbProps> = ({
         // Calculate influence based on angle between mouse and point
         // Enhanced formula for more dramatic effect
         const angle = grainPos.angleTo(distortionPoint);
+        const currentDistortionStrength = voiceMode
+          ? distortionStrength * 1.4
+          : distortionStrength;
+
         const distortionFactor =
-          Math.max(0, 1 - angle / Math.PI) * distortionStrength * 1.2;
+          Math.max(0, 1 - angle / Math.PI) * currentDistortionStrength * 1.2;
 
         // Apply mouse-based distortion
         finalX += distortionPoint.x * distortionFactor;
@@ -230,9 +248,10 @@ export const OrbComponent: React.FC<OrbProps> = ({
       }
 
       // Apply position with damping for smooth transitions
-      positions[i3] = MathUtils.lerp(positions[i3], finalX, delta * 3);
-      positions[i3 + 1] = MathUtils.lerp(positions[i3 + 1], finalY, delta * 3);
-      positions[i3 + 2] = MathUtils.lerp(positions[i3 + 2], finalZ, delta * 3);
+      const lerpFactor = voiceMode ? delta * 4 : delta * 3;
+      positions[i3] = MathUtils.lerp(positions[i3], finalX, lerpFactor);
+      positions[i3 + 1] = MathUtils.lerp(positions[i3 + 1], finalY, lerpFactor);
+      positions[i3 + 2] = MathUtils.lerp(positions[i3 + 2], finalZ, lerpFactor);
     }
 
     pointsRef.current.geometry.attributes.position.needsUpdate = true;
