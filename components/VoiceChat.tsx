@@ -22,11 +22,13 @@ interface ConnectionDetails {
 interface VoiceChatProps {
   onVoiceActivity: (level: number) => void;
   onClose: () => void;
+  onAgentStateChange?: (state: AgentState) => void; // New prop
 }
 
 export default function VoiceChat({
   onVoiceActivity,
   onClose,
+  onAgentStateChange,
 }: VoiceChatProps) {
   const [connectionDetails, setConnectionDetails] = useState<
     ConnectionDetails | undefined
@@ -40,6 +42,18 @@ export default function VoiceChat({
 
   // Flag to track initial connection
   const hasConnected = useRef(false);
+
+  // Handle agent state changes
+  const handleAgentStateChange = useCallback(
+    (state: AgentState) => {
+      setAgentState(state);
+      // Pass state to parent component if callback exists
+      if (onAgentStateChange) {
+        onAgentStateChange(state);
+      }
+    },
+    [onAgentStateChange]
+  );
 
   // Separate fetch function to avoid dependency issues
   const fetchToken = useCallback(async () => {
@@ -174,7 +188,7 @@ export default function VoiceChat({
           key={connectionDetails.participantToken.substring(0, 10)}
         >
           <SimpleVoiceAssistant
-            onStateChange={setAgentState}
+            onStateChange={handleAgentStateChange}
             onVoiceActivity={onVoiceActivity}
             isDark={isDark}
           />

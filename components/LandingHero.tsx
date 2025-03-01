@@ -8,29 +8,45 @@ import { ArrowRight, MessageSquare, Phone } from "lucide-react";
 import { OrbComponent } from "./OrbComponent";
 import { ThemeColors, ThemeTransitions } from "./ThemeConstants";
 import { useTheme } from "next-themes";
-// import VoiceChat from "./VoiceChat";
 import { Vector3, MathUtils } from "three";
 import VoiceChat from "./VoiceChat";
+import { AgentState } from "@livekit/components-react";
 
 // Animated camera controller for interactive transitions
 const CameraController = ({
   active,
   zoomToOrb,
   voiceChatActive,
+  agentState,
 }: {
   active: boolean;
   zoomToOrb: boolean;
   voiceChatActive: boolean;
+  agentState: AgentState;
 }) => {
   const targetPosition = useRef(new Vector3(0, 0, active ? 3 : 5));
   const targetRotation = useRef({ x: 0, y: 0 });
 
   useFrame((state) => {
-    // Determine target camera position based on state
+    // Determine target camera position based on state and agent state
     if (voiceChatActive) {
-      // Position camera above when voice chat is active
-      targetPosition.current.set(0, 3, 12);
-      targetRotation.current = { x: -0.3, y: 0 };
+      if (agentState === "speaking") {
+        // Get closer when agent is speaking
+        targetPosition.current.set(0, 0.5, 2.8);
+        targetRotation.current = { x: -0.1, y: 0 };
+      } else if (agentState === "listening") {
+        // Position camera at angle when listening
+        targetPosition.current.set(1, 1, 4);
+        targetRotation.current = { x: -0.15, y: -0.2 };
+      } else if (agentState === "thinking") {
+        // Slightly higher position when thinking
+        targetPosition.current.set(0, 2, 5);
+        targetRotation.current = { x: -0.2, y: 0 };
+      } else {
+        // Default voice chat position
+        targetPosition.current.set(0, 1, 3.5);
+        targetRotation.current = { x: -0.1, y: 0 };
+      }
     } else if (zoomToOrb) {
       targetPosition.current.set(0, 0, 2.5);
       targetRotation.current = { x: 0, y: 0 };
@@ -70,10 +86,35 @@ export const LandingHero = () => {
     distortionStrength: 0.6,
   });
   const [audioActivityLevel, setAudioActivityLevel] = useState(0);
+  const [agentState, setAgentState] = useState<AgentState>("disconnected");
 
   // Determine the current theme
   const currentTheme = theme === "system" ? systemTheme : theme;
   const isDark = currentTheme === "dark";
+
+  // Determine orb color based on agent state
+  const getOrbColor = () => {
+    if (!voiceChatActive) return ThemeColors.accent;
+
+    switch (agentState) {
+      case "speaking":
+        return ThemeColors.accent;
+      case "listening":
+        return ThemeColors.secondaryAccents.emerald;
+      case "thinking":
+        return ThemeColors.secondaryAccents.cyan;
+      default:
+        return ThemeColors.secondaryAccents.slate;
+    }
+  };
+
+  const orbRadius = voiceChatActive
+    ? agentState === "speaking"
+      ? 2.0
+      : agentState === "listening"
+      ? 1.9
+      : 1.7
+    : 1.6;
 
   // Mount effect to avoid hydration mismatch
   useEffect(() => {
@@ -91,17 +132,36 @@ export const LandingHero = () => {
       // Zoom camera to focus on orb
       setZoomToOrb(true);
 
-      // Gradually increase orb interactivity
-      const timer = setTimeout(() => {
+      // Set interactivity based on agent state
+      if (agentState === "speaking") {
+        setOrbInteractivity({
+          rotationSpeed: 0.08,
+          pulsateSpeed: 0.22,
+          noiseStrength: 0.18,
+          distortionStrength: 0.85,
+        });
+      } else if (agentState === "listening") {
         setOrbInteractivity({
           rotationSpeed: 0.06,
           pulsateSpeed: 0.18,
           noiseStrength: 0.16,
           distortionStrength: 0.8,
         });
-      }, 500);
-
-      return () => clearTimeout(timer);
+      } else if (agentState === "thinking") {
+        setOrbInteractivity({
+          rotationSpeed: 0.04,
+          pulsateSpeed: 0.15,
+          noiseStrength: 0.14,
+          distortionStrength: 0.75,
+        });
+      } else {
+        setOrbInteractivity({
+          rotationSpeed: 0.04,
+          pulsateSpeed: 0.12,
+          noiseStrength: 0.12,
+          distortionStrength: 0.6,
+        });
+      }
     } else {
       // Reset orb to normal state
       setZoomToOrb(false);
@@ -112,7 +172,7 @@ export const LandingHero = () => {
         distortionStrength: 0.6,
       });
     }
-  }, [voiceChatActive]);
+  }, [voiceChatActive, agentState]);
 
   // Handle voice activity from VoiceChat component
   const handleVoiceActivity = (level: number) => {
@@ -127,6 +187,11 @@ export const LandingHero = () => {
         rotationSpeed: 0.06 + level * 0.05,
       }));
     }
+  };
+
+  // Handle agent state changes
+  const handleAgentStateChange = (state: AgentState) => {
+    setAgentState(state);
   };
 
   // Handle activating voice chat
@@ -202,10 +267,10 @@ export const LandingHero = () => {
             />
             <Suspense fallback={null}>
               <OrbComponent
-                color={ThemeColors.accent}
+                color={getOrbColor()}
                 hoverColor={ThemeColors.secondaryAccents.cyan}
                 grainCount={voiceChatActive ? 2400 : 2000}
-                radius={voiceChatActive ? 1.8 : 1.6}
+                radius={orbRadius}
                 grainSize={0.015 + audioActivityLevel * 0.01}
                 vertexColors={false}
                 rotationSpeed={orbInteractivity.rotationSpeed}
@@ -226,6 +291,7 @@ export const LandingHero = () => {
               active={loaded}
               zoomToOrb={zoomToOrb}
               voiceChatActive={voiceChatActive}
+              agentState={agentState}
             />
           </Canvas>
 
@@ -464,6 +530,7 @@ export const LandingHero = () => {
                 <VoiceChat
                   onVoiceActivity={handleVoiceActivity}
                   onClose={handleCloseVoiceChat}
+                  onAgentStateChange={handleAgentStateChange}
                 />
               </div>
             </div>
