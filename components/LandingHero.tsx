@@ -463,7 +463,7 @@ export const LandingHero = () => {
           >
             <div className="container mx-auto px-6">
               <div className="max-w-3xl mx-auto text-center">
-                <motion.div
+                {/* <motion.div
                   className={`inline-block mb-3 px-4 py-1.5 ${styles.tagBackground} ${styles.tagBorder} backdrop-blur-sm border rounded-md`}
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : -20 }}
@@ -472,7 +472,7 @@ export const LandingHero = () => {
                   <span className="text-xs font-semibold tracking-widest text-[#FF3D71] uppercase">
                     Redefining Communication
                   </span>
-                </motion.div>
+                </motion.div> */}
 
                 <motion.h1
                   className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4"
