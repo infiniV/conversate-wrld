@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { Suspense } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useSpring } from "framer-motion";
 import { ArrowRight, MessageSquare, Phone } from "lucide-react";
 import { OrbComponent } from "./OrbComponent";
 import { ThemeColors, ThemeTransitions } from "./ThemeConstants";
@@ -12,61 +12,152 @@ import { Vector3, MathUtils } from "three";
 import VoiceChat from "./VoiceChat";
 import { AgentState } from "@livekit/components-react";
 
-// Animated camera controller for interactive transitions
+// Enhanced camera controller with more fluid and dynamic movements
 const CameraController = ({
   active,
   zoomToOrb,
   voiceChatActive,
   agentState,
+  idleTime,
 }: {
   active: boolean;
   zoomToOrb: boolean;
   voiceChatActive: boolean;
   agentState: AgentState;
+  idleTime: number;
 }) => {
   const targetPosition = useRef(new Vector3(0, 0, active ? 3 : 5));
-  const targetRotation = useRef({ x: 0, y: 0 });
+  const targetRotation = useRef({ x: 0, y: 0, z: 0 });
+  const time = useRef(0);
+  const initialRotation = useRef({ x: 0, y: 0, z: 0 });
+  const transitionSpeed = useRef(0.05);
 
-  useFrame((state) => {
+  useFrame((state, delta) => {
+    // Update time reference for ambient motion
+    time.current += delta;
+
+    // Store initial rotation once
+    if (initialRotation.current.x === 0) {
+      initialRotation.current = {
+        x: state.camera.rotation.x,
+        y: state.camera.rotation.y,
+        z: state.camera.rotation.z,
+      };
+    }
+
+    // Dynamic transition speed based on state changes
+    if (agentState === "speaking") {
+      transitionSpeed.current = 0.06; // Faster for speaking
+    } else if (agentState === "listening") {
+      transitionSpeed.current = 0.05; // Medium for listening
+    } else {
+      transitionSpeed.current = 0.04; // Slower for other states
+    }
+
     // Determine target camera position based on state and agent state
     if (voiceChatActive) {
       if (agentState === "speaking") {
-        // Get closer when agent is speaking
-        targetPosition.current.set(0, 0.5, 2.8);
-        targetRotation.current = { x: -0.1, y: 0 };
+        // More dramatic and closer when speaking
+        targetPosition.current.set(
+          -0.2 + Math.sin(time.current * 0.3) * 0.05,
+          0.6 + Math.sin(time.current * 0.5) * 0.05,
+          2.7
+        );
+        targetRotation.current = {
+          x: -0.15,
+          y: Math.sin(time.current * 0.2) * 0.02,
+          z: Math.sin(time.current * 0.3) * 0.005,
+        };
       } else if (agentState === "listening") {
-        // Position camera at angle when listening
-        targetPosition.current.set(1, 1, 4);
-        targetRotation.current = { x: -0.15, y: -0.2 };
+        // Slightly angled and dynamic when listening
+        targetPosition.current.set(
+          0.8 + Math.sin(time.current * 0.25) * 0.1,
+          0.7 + Math.sin(time.current * 0.4) * 0.08,
+          3.8
+        );
+        targetRotation.current = {
+          x: -0.12,
+          y: -0.15 + Math.sin(time.current * 0.3) * 0.02,
+          z: Math.sin(time.current * 0.2) * 0.01,
+        };
       } else if (agentState === "thinking") {
-        // Slightly higher position when thinking
-        targetPosition.current.set(0, 2, 5);
-        targetRotation.current = { x: -0.2, y: 0 };
+        // Elevated position with subtle circular motion when thinking
+        const circleRadius = 0.8;
+        const circleHeight = 2;
+        const circleSpeed = 0.2;
+
+        targetPosition.current.set(
+          Math.sin(time.current * circleSpeed) * circleRadius,
+          circleHeight,
+          4.5 + Math.cos(time.current * circleSpeed) * (circleRadius * 0.5)
+        );
+        targetRotation.current = {
+          x: -0.3,
+          y: Math.sin(time.current * circleSpeed) * 0.05,
+          z: 0,
+        };
       } else {
-        // Default voice chat position
-        targetPosition.current.set(0, 1, 3.5);
-        targetRotation.current = { x: -0.1, y: 0 };
+        // Default position with subtle sway
+        targetPosition.current.set(
+          Math.sin(time.current * 0.2) * 0.2,
+          1 + Math.sin(time.current * 0.3) * 0.1,
+          3.5
+        );
+        targetRotation.current = {
+          x: -0.1 + Math.sin(time.current * 0.25) * 0.01,
+          y: Math.sin(time.current * 0.2) * 0.02,
+          z: 0,
+        };
       }
     } else if (zoomToOrb) {
-      targetPosition.current.set(0, 0, 2.5);
-      targetRotation.current = { x: 0, y: 0 };
+      // Transition state - slightly dynamic position
+      targetPosition.current.set(
+        Math.sin(time.current * 0.3) * 0.1,
+        Math.sin(time.current * 0.4) * 0.1,
+        2.5
+      );
+      targetRotation.current = {
+        x: Math.sin(time.current * 0.3) * 0.01,
+        y: Math.sin(time.current * 0.2) * 0.01,
+        z: 0,
+      };
     } else {
-      targetPosition.current.set(0, 0, active ? 3 : 5);
-      targetRotation.current = { x: 0, y: 0 };
+      // Add subtle ambient motion when idle
+      const idleAmplitude = Math.min(idleTime / 15, 1) * 0.15; // Grows over time
+      targetPosition.current.set(
+        Math.sin(time.current * 0.1) * idleAmplitude,
+        Math.sin(time.current * 0.15) * idleAmplitude,
+        active ? 3 + Math.sin(time.current * 0.05) * 0.1 : 5
+      );
+      targetRotation.current = {
+        x: Math.sin(time.current * 0.1) * 0.01 * idleAmplitude,
+        y: Math.sin(time.current * 0.12) * 0.01 * idleAmplitude,
+        z: 0,
+      };
     }
 
-    // Smooth camera movement
-    state.camera.position.lerp(targetPosition.current, 0.05);
+    // Smooth camera movement with dynamic transition speed
+    state.camera.position.lerp(targetPosition.current, transitionSpeed.current);
+
+    // Apply rotations with dynamic transition speed
     state.camera.rotation.x = MathUtils.lerp(
       state.camera.rotation.x,
-      targetRotation.current.x,
-      0.05
+      initialRotation.current.x + targetRotation.current.x,
+      transitionSpeed.current
     );
+
     state.camera.rotation.y = MathUtils.lerp(
       state.camera.rotation.y,
-      targetRotation.current.y,
-      0.05
+      initialRotation.current.y + targetRotation.current.y,
+      transitionSpeed.current
     );
+
+    state.camera.rotation.z = MathUtils.lerp(
+      state.camera.rotation.z,
+      initialRotation.current.z + targetRotation.current.z,
+      transitionSpeed.current * 0.5 // Slower for z-rotation
+    );
+
     state.camera.updateProjectionMatrix();
   });
 
@@ -87,12 +178,42 @@ export const LandingHero = () => {
   });
   const [audioActivityLevel, setAudioActivityLevel] = useState(0);
   const [agentState, setAgentState] = useState<AgentState>("disconnected");
+  const [idleTime, setIdleTime] = useState(0);
+  const lastInteractionTime = useRef(Date.now());
 
   // Determine the current theme
   const currentTheme = theme === "system" ? systemTheme : theme;
   const isDark = currentTheme === "dark";
 
-  // Determine orb color based on agent state
+  // Track idle time
+  useEffect(() => {
+    const updateIdleTime = () => {
+      const now = Date.now();
+      setIdleTime((now - lastInteractionTime.current) / 1000); // Convert to seconds
+    };
+
+    const interval = setInterval(updateIdleTime, 100);
+
+    // Reset idle timer on user interaction
+    const resetTimer = () => {
+      lastInteractionTime.current = Date.now();
+      setIdleTime(0);
+    };
+
+    // Track user interactions
+    window.addEventListener("mousemove", resetTimer);
+    window.addEventListener("click", resetTimer);
+    window.addEventListener("keydown", resetTimer);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("mousemove", resetTimer);
+      window.removeEventListener("click", resetTimer);
+      window.removeEventListener("keydown", resetTimer);
+    };
+  }, []);
+
+  // Determine orb color based on agent state with smoother transitions
   const getOrbColor = () => {
     if (!voiceChatActive) return ThemeColors.accent;
 
@@ -108,7 +229,9 @@ export const LandingHero = () => {
     }
   };
 
-  const orbRadius = voiceChatActive
+  // Dynamic orb sizing based on state with smoother spring animation
+  const springConfig = { stiffness: 120, damping: 20, mass: 1 };
+  const targetRadius = voiceChatActive
     ? agentState === "speaking"
       ? 2.0
       : agentState === "listening"
@@ -116,29 +239,38 @@ export const LandingHero = () => {
       : 1.7
     : 1.6;
 
-  // Mount effect to avoid hydration mismatch
+  const orbRadius = useSpring(targetRadius, springConfig);
+
+  // Update spring animation when target changes
+  useEffect(() => {
+    orbRadius.set(targetRadius);
+  }, [targetRadius, orbRadius]);
+
+  // Mount and load effects
   useEffect(() => {
     setMounted(true);
+
+    // Stagger the loaded state for a more polished entrance
+    const timer = setTimeout(() => {
+      setLoaded(true);
+    }, 100);
+
+    return () => clearTimeout(timer);
   }, []);
 
-  // Load effect for animations
-  useEffect(() => {
-    setLoaded(true);
-  }, []);
-
-  // Effect to enhance orb interactivity when voice chat is active
+  // Enhanced effect to adjust orb interactivity when voice chat is active
   useEffect(() => {
     if (voiceChatActive) {
-      // Zoom camera to focus on orb
-      setZoomToOrb(true);
+      // Zoom camera to focus on orb with delay for smoother transition
+      setTimeout(() => setZoomToOrb(true), 200);
 
-      // Set interactivity based on agent state
+      // Dynamic interactivity based on agent state
       if (agentState === "speaking") {
         setOrbInteractivity({
           rotationSpeed: 0.08,
           pulsateSpeed: 0.22,
-          noiseStrength: 0.18,
-          distortionStrength: 0.85,
+          noiseStrength: 0.2,
+          distortionStrength: 0.88,
         });
       } else if (agentState === "listening") {
         setOrbInteractivity({
@@ -163,51 +295,74 @@ export const LandingHero = () => {
         });
       }
     } else {
-      // Reset orb to normal state
-      setZoomToOrb(false);
+      // Reset orb with a slight delay for smoother transition out
+      setTimeout(() => setZoomToOrb(false), 100);
+
+      // Add a subtle idle animation based on idle time
+      const idleFactor = Math.min(idleTime / 30, 1) * 0.01;
       setOrbInteractivity({
-        rotationSpeed: 0.04,
-        pulsateSpeed: 0.12,
-        noiseStrength: 0.12,
-        distortionStrength: 0.6,
+        rotationSpeed: 0.035 + idleFactor,
+        pulsateSpeed: 0.11 + idleFactor * 2,
+        noiseStrength: 0.11 + idleFactor,
+        distortionStrength: 0.58 + idleFactor * 3,
       });
     }
-  }, [voiceChatActive, agentState]);
+  }, [voiceChatActive, agentState, idleTime]);
 
-  // Handle voice activity from VoiceChat component
+  // Enhanced voice activity handler with smoother transitions
   const handleVoiceActivity = (level: number) => {
     setAudioActivityLevel(level);
 
-    // Dynamically adjust orb properties based on voice activity
-    if (level > 0.1) {
+    // More responsive orb properties based on voice activity
+    if (level > 0.05) {
       setOrbInteractivity((prev) => ({
         ...prev,
-        pulsateSpeed: 0.18 + level * 0.1,
-        noiseStrength: 0.16 + level * 0.1,
-        rotationSpeed: 0.06 + level * 0.05,
+        pulsateSpeed: prev.pulsateSpeed + level * 0.15,
+        noiseStrength: prev.noiseStrength + level * 0.12,
+        rotationSpeed: prev.rotationSpeed + level * 0.06,
+        distortionStrength: Math.min(
+          prev.distortionStrength + level * 0.2,
+          1.0
+        ),
       }));
     }
   };
 
-  // Handle agent state changes
+  // Handle agent state changes with interaction reset
   const handleAgentStateChange = (state: AgentState) => {
     setAgentState(state);
+    lastInteractionTime.current = Date.now(); // Reset idle timer on state change
   };
 
-  // Handle activating voice chat
+  // Handle activating voice chat with animation preparation
   interface TryConversateHandler {
     preventDefault: () => void;
   }
 
   const handleTryConversate = (e: TryConversateHandler): void => {
     e.preventDefault();
-    setVoiceChatActive(true);
+
+    // Small prep animation before showing voice chat
+    setOrbInteractivity((prev) => ({
+      ...prev,
+      rotationSpeed: 0.07,
+      pulsateSpeed: 0.18,
+    }));
+
+    // Activate voice chat after brief animation
+    setTimeout(() => setVoiceChatActive(true), 200);
   };
 
-  // Handle closing voice chat
+  // Handle closing voice chat with smooth transition
   const handleCloseVoiceChat = () => {
-    setVoiceChatActive(false);
+    // First reset activity level
     setAudioActivityLevel(0);
+
+    // Then close voice chat with a slight delay
+    setTimeout(() => {
+      setVoiceChatActive(false);
+      setAgentState("disconnected");
+    }, 100);
   };
 
   if (!mounted) return null; // Prevent hydration mismatch
@@ -252,7 +407,7 @@ export const LandingHero = () => {
       <div className="absolute inset-0 flex items-center justify-center z-10">
         <div className="w-[100vw] h-[100vh] absolute opacity-90">
           <Canvas
-            camera={{ position: [0, 0, 5], fov: 45 }}
+            camera={{ position: [0, 0, 5], fov: 80 }}
             style={{
               touchAction: "none",
               filter: isDark ? "none" : "contrast(1.05) brightness(1.05)",
@@ -260,96 +415,50 @@ export const LandingHero = () => {
             eventSource={document.documentElement}
             eventPrefix="client"
           >
-            <ambientLight intensity={isDark ? 0.5 : 0.7} />
-            <directionalLight
-              position={[5, 5, 5]}
-              intensity={isDark ? 1 : 1.2}
-            />
             <Suspense fallback={null}>
               <OrbComponent
                 color={getOrbColor()}
                 hoverColor={ThemeColors.secondaryAccents.cyan}
-                grainCount={voiceChatActive ? 2400 : 2000}
-                radius={orbRadius}
-                grainSize={0.015 + audioActivityLevel * 0.01}
+                grainCount={voiceChatActive ? 1400 : 1200}
+                radius={orbRadius.get()}
+                grainSize={0.0075 + audioActivityLevel * 0.012}
                 vertexColors={false}
                 rotationSpeed={orbInteractivity.rotationSpeed}
                 pulsateSpeed={orbInteractivity.pulsateSpeed}
                 noiseStrength={orbInteractivity.noiseStrength}
                 pulsateStrength={
                   isDark
-                    ? 0.03 + audioActivityLevel * 0.05
+                    ? 0.03 + audioActivityLevel * 0.06
                     : 0.025 + audioActivityLevel * 0.05
                 }
                 distortionStrength={orbInteractivity.distortionStrength}
                 voiceMode={voiceChatActive}
               />
+
+              {/* Add ambient particles for depth */}
             </Suspense>
 
-            {/* Camera controller for smooth transitions */}
+            {/* Enhanced camera controller */}
             <CameraController
               active={loaded}
               zoomToOrb={zoomToOrb}
               voiceChatActive={voiceChatActive}
               agentState={agentState}
+              idleTime={idleTime}
             />
           </Canvas>
-
-          {/* Subtle audio wave hints - Enhanced when voice chat is active */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden opacity-20">
-            <svg
-              className="w-full h-full"
-              viewBox="0 0 100 100"
-              preserveAspectRatio="none"
-            >
-              <motion.path
-                d="M0,50 Q25,45 50,50 T100,50"
-                fill="none"
-                stroke={ThemeColors.accent}
-                strokeWidth="0.2"
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{
-                  pathLength: [0, 1],
-                  opacity: [0, voiceChatActive ? 0.5 : 0.3, 0],
-                }}
-                transition={{
-                  duration: voiceChatActive ? 2 : 3,
-                  repeat: Infinity,
-                  repeatDelay: voiceChatActive ? 1 : 2,
-                  ease: "easeInOut",
-                }}
-              />
-              <motion.path
-                d="M0,50 Q25,55 50,50 T100,50"
-                fill="none"
-                stroke={ThemeColors.secondaryAccents.cyan}
-                strokeWidth="0.2"
-                initial={{ pathLength: 0, opacity: 0 }}
-                animate={{
-                  pathLength: [0, 1],
-                  opacity: [0, voiceChatActive ? 0.6 : 0.4, 0],
-                }}
-                transition={{
-                  duration: voiceChatActive ? 3 : 4,
-                  delay: 1,
-                  repeat: Infinity,
-                  repeatDelay: voiceChatActive ? 2 : 3,
-                  ease: "easeInOut",
-                }}
-              />
-            </svg>
-          </div>
         </div>
       </div>
 
-      {/* Content Overlay - Will hide when voice chat is active */}
-      <AnimatePresence>
+      {/* Content Overlay with enhanced animations */}
+      <AnimatePresence mode="wait">
         {!voiceChatActive && (
           <motion.div
             className="relative z-20 w-full h-full flex items-center justify-center"
-            initial={{ opacity: 1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="container mx-auto px-6">
               <div className="max-w-3xl mx-auto text-center">
@@ -473,56 +582,19 @@ export const LandingHero = () => {
                 </motion.div>
               </div>
             </div>
-
-            {/* Decorative elements */}
-            <motion.div
-              className={`absolute bottom-8 right-8 md:bottom-16 md:right-16 w-28 h-28 border ${styles.decorativeBorder}`}
-              style={{
-                clipPath:
-                  "polygon(0 0, calc(100% - 15px) 0, 100% 15px, 100% 100%, 15px 100%, 0 calc(100% - 15px))",
-              }}
-              initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
-              animate={{
-                opacity: loaded ? styles.decorationOpacity : 0,
-                scale: loaded ? 1 : 0.8,
-                rotate: loaded ? 0 : -5,
-              }}
-              transition={{ delay: 1.2, duration: 0.8 }}
-            />
-
-            <motion.div
-              className="absolute bottom-8 left-8 md:bottom-16 md:left-16 w-28 h-28 border"
-              style={{
-                clipPath:
-                  "polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px))",
-                border: `1px solid ${ThemeColors.accent}33`,
-              }}
-              initial={{ opacity: 0, scale: 0.8, rotate: 5 }}
-              animate={{
-                opacity: loaded ? styles.decorationOpacity - 0.1 : 0,
-                scale: loaded ? 1 : 0.8,
-                rotate: loaded ? 0 : 5,
-              }}
-              transition={{ delay: 1.3, duration: 0.8 }}
-            />
-
-            {/* Connection lines */}
-            <svg className="absolute inset-0 w-full h-full z-0 opacity-10 pointer-events-none">
-              {/* ...existing SVG code... */}
-            </svg>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Voice Chat Integration - Show when active */}
+      {/* Voice Chat Integration with enhanced transitions */}
       <AnimatePresence>
         {voiceChatActive && (
           <motion.div
             className="relative z-30 w-full h-full"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.7 }}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.96 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           >
             {/* Position voice chat to interact with the orb */}
             <div className="w-full h-full flex items-center justify-center px-4 pt-16">

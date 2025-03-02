@@ -22,7 +22,7 @@ interface ConnectionDetails {
 interface VoiceChatProps {
   onVoiceActivity: (level: number) => void;
   onClose: () => void;
-  onAgentStateChange?: (state: AgentState) => void; // New prop
+  onAgentStateChange?: (state: AgentState) => void;
 }
 
 export default function VoiceChat({
@@ -34,14 +34,16 @@ export default function VoiceChat({
     ConnectionDetails | undefined
   >(undefined);
   const [agentState, setAgentState] = useState<AgentState>("disconnected");
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { theme, systemTheme } = useTheme();
   const currentTheme = theme === "system" ? systemTheme : theme;
   const isDark = currentTheme === "dark";
 
-  // Flag to track initial connection
+  // Flag to track initial connection and prevent reconnection race conditions
   const hasConnected = useRef(false);
+  const isDisconnecting = useRef(false);
+  const reconnectTimer = useRef<NodeJS.Timeout | null>(null);
 
   // Handle agent state changes
   const handleAgentStateChange = useCallback(
@@ -55,11 +57,23 @@ export default function VoiceChat({
     [onAgentStateChange]
   );
 
+  // Clean up any pending reconnection timers on unmount
+  useEffect(() => {
+    return () => {
+      if (reconnectTimer.current) {
+        clearTimeout(reconnectTimer.current);
+      }
+    };
+  }, []);
+
   // Separate fetch function to avoid dependency issues
   const fetchToken = useCallback(async () => {
-    if (hasConnected.current) return;
+    // Don't fetch if already connected or currently disconnecting
+    if (hasConnected.current || isDisconnecting.current) return;
 
     setIsLoading(true);
+    setError(null);
+
     try {
       const username = `user-${Math.floor(Math.random() * 10000)}`;
       const response = await fetch(
@@ -76,9 +90,11 @@ export default function VoiceChat({
         participantToken: data.token,
       });
       hasConnected.current = true;
+      isDisconnecting.current = false;
     } catch (error) {
       console.error("Failed to fetch token:", error);
       setError("Failed to connect to voice service");
+      hasConnected.current = false;
     } finally {
       setIsLoading(false);
     }
@@ -87,28 +103,46 @@ export default function VoiceChat({
   // Connect once on component mount
   useEffect(() => {
     fetchToken();
-    // No dependencies to avoid re-fetching
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Reset connection when component unmounts
-  useEffect(() => {
-    return () => {
-      hasConnected.current = false;
-    };
+  // Complete disconnect handler that properly cleans up state
+  const handleDisconnect = useCallback(() => {
+    isDisconnecting.current = true;
+    hasConnected.current = false;
+    setAgentState("disconnected");
+    setConnectionDetails(undefined);
+
+    // Allow reconnection after a short delay to ensure cleanup
+    if (reconnectTimer.current) {
+      clearTimeout(reconnectTimer.current);
+    }
+
+    reconnectTimer.current = setTimeout(() => {
+      isDisconnecting.current = false;
+    }, 1000);
   }, []);
 
-  // Handle disconnection
-  const handleDisconnect = useCallback(() => {
-    setConnectionDetails(undefined);
-    hasConnected.current = false;
-  }, []);
+  // Handle closing the entire voice chat component
+  const handleClose = useCallback(() => {
+    handleDisconnect();
+    onClose();
+  }, [handleDisconnect, onClose]);
 
   // Handle retry if connection fails
   const handleRetry = useCallback(() => {
     setError(null);
     hasConnected.current = false;
-    fetchToken();
+    isDisconnecting.current = false;
+
+    if (reconnectTimer.current) {
+      clearTimeout(reconnectTimer.current);
+    }
+
+    // Small delay before retry to ensure clean state
+    setTimeout(() => {
+      fetchToken();
+    }, 500);
   }, [fetchToken]);
 
   if (error) {
@@ -135,7 +169,7 @@ export default function VoiceChat({
               Retry
             </button>
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="bg-red-500/20 hover:bg-red-500/30 px-4 py-2 rounded"
             >
               Close
@@ -184,8 +218,8 @@ export default function VoiceChat({
           onMediaDeviceFailure={onDeviceFailure}
           onDisconnected={handleDisconnect}
           className="grid grid-rows-[2fr_1fr] items-center"
-          // Stable key to prevent room reconnection on re-render
-          key={connectionDetails.participantToken.substring(0, 10)}
+          // Use the token itself as the key to ensure proper re-render on new connections
+          key={connectionDetails.participantToken}
         >
           <SimpleVoiceAssistant
             onStateChange={handleAgentStateChange}
@@ -195,6 +229,8 @@ export default function VoiceChat({
           <ControlBar
             onConnectButtonClicked={fetchToken}
             agentState={agentState}
+            onDisconnect={handleDisconnect}
+            onClose={handleClose}
           />
           <RoomAudioRenderer />
           <NoAgentNotification state={agentState} />
@@ -339,19 +375,21 @@ function SimpleVoiceAssistant(props: {
 }
 
 function ControlBar(props: {
-  onConnectButtonClicked: () => void;
+  onConnectButtonClicked: () => Promise<void>;
   agentState: AgentState;
+  onDisconnect: () => void;
+  onClose: () => void;
 }) {
   return (
-    <div className="relative h-[100px]">
+    <div className="relative h-[100px] flex items-center justify-center">
       <AnimatePresence>
         {props.agentState === "disconnected" && (
           <motion.button
-            initial={{ opacity: 0, top: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0, top: "-10px" }}
-            transition={{ duration: 1, ease: [0.09, 1.04, 0.245, 1.055] }}
-            className="uppercase absolute left-1/2 -translate-x-1/2 px-4 py-2 bg-white text-black rounded-md"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="uppercase px-6 py-2.5 bg-white text-black rounded-md font-medium shadow-sm hover:bg-white/90 transition-colors"
             onClick={() => props.onConnectButtonClicked()}
           >
             Start a conversation
@@ -362,16 +400,28 @@ function ControlBar(props: {
         {props.agentState !== "disconnected" &&
           props.agentState !== "connecting" && (
             <motion.div
-              initial={{ opacity: 0, top: "10px" }}
-              animate={{ opacity: 1, top: 0 }}
-              exit={{ opacity: 0, top: "-10px" }}
-              transition={{ duration: 0.4, ease: [0.09, 1.04, 0.245, 1.055] }}
-              className="flex h-8 absolute left-1/2 -translate-x-1/2  justify-center"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="flex items-center space-x-4 px-4 py-3 bg-black/10 backdrop-blur-sm rounded-full"
             >
-              <VoiceAssistantControlBar controls={{ leave: false }} />
-              <DisconnectButton>
-                <CloseIcon />
+              <VoiceAssistantControlBar
+                controls={{ leave: false }}
+                className="flex items-center "
+              />
+              <DisconnectButton
+                onClick={props.onDisconnect}
+                className="h-9 w-9 rounded-full bg-black/10 hover:bg-black/20 flex items-center justify-center transition-colors"
+              >
+                <PauseIcon />
               </DisconnectButton>
+              <button
+                onClick={props.onClose}
+                className="h-9 w-9 rounded-full bg-red-500/20 hover:bg-red-500/30 flex items-center justify-center transition-colors"
+              >
+                <CloseIcon />
+              </button>
             </motion.div>
           )}
       </AnimatePresence>
@@ -383,6 +433,22 @@ function onDeviceFailure(error?: MediaDeviceFailure) {
   console.error(error);
   alert(
     "Error acquiring microphone permissions. Please make sure you grant the necessary permissions in your browser and reload the tab"
+  );
+}
+
+// Additional icon for pause/disconnect function
+function PauseIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 16 16"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect x="3" y="3" width="3" height="10" rx="1" fill="currentColor" />
+      <rect x="10" y="3" width="3" height="10" rx="1" fill="currentColor" />
+    </svg>
   );
 }
 

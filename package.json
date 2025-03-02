@@ -11,6 +11,8 @@
   "dependencies": {
     "@livekit/components-react": "^2.8.1",
     "@livekit/components-styles": "^1.1.4",
+    "@react-spring/three": "^9.7.5",
+    "@react-three/drei": "^10.0.3",
     "@react-three/fiber": "^9.0.4",
     "@types/three": "^0.174.0",
     "class-variance-authority": "^0.7.1",
