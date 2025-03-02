@@ -1,7 +1,6 @@
 "use client";
 
 import { LandingHero } from "@/components/LandingHero";
-import { OrbFeatureShowcase } from "@/components/OrbFeatureShowcase";
 import { NavigationBar } from "../components/NavigationBar";
 
 export default function Home() {
@@ -9,7 +8,6 @@ export default function Home() {
     <>
       <NavigationBar />
       <LandingHero />
-      <OrbFeatureShowcase />
     </>
   );
 }
