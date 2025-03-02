@@ -11,6 +11,7 @@ import { useTheme } from "next-themes";
 import { Vector3, MathUtils } from "three";
 import VoiceChat from "./VoiceChat";
 import { AgentState } from "@livekit/components-react";
+import AmbientRings from "./ambientRings";
 
 // Enhanced camera controller with more fluid and dynamic movements
 const CameraController = ({
@@ -126,7 +127,7 @@ const CameraController = ({
       const idleAmplitude = Math.min(idleTime / 15, 1) * 0.15; // Grows over time
       targetPosition.current.set(
         Math.sin(time.current * 0.1) * idleAmplitude,
-        Math.sin(time.current * 0.15) * idleAmplitude,
+        Math.sin(time.current * 0.15) * idleAmplitude - 0.2,
         active ? 3 + Math.sin(time.current * 0.05) * 0.1 : 5
       );
       targetRotation.current = {
@@ -407,7 +408,7 @@ export const LandingHero = () => {
       <div className="absolute inset-0 flex items-center justify-center z-10">
         <div className="w-[100vw] h-[100vh] absolute opacity-90">
           <Canvas
-            camera={{ position: [0, 0, 5], fov: 80 }}
+            camera={{ position: [0, 0, 2], fov: 80 }}
             style={{
               touchAction: "none",
               filter: isDark ? "none" : "contrast(1.05) brightness(1.05)",
@@ -434,7 +435,7 @@ export const LandingHero = () => {
                 distortionStrength={orbInteractivity.distortionStrength}
                 voiceMode={voiceChatActive}
               />
-
+              <AmbientRings color={getOrbColor()} />
               {/* Add ambient particles for depth */}
             </Suspense>
 
@@ -454,7 +455,7 @@ export const LandingHero = () => {
       <AnimatePresence mode="wait">
         {!voiceChatActive && (
           <motion.div
-            className="relative z-20 w-full h-full flex items-center justify-center"
+            className="relative z-20 top-1/5 w-full h-full flex items-center justify-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}

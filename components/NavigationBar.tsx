@@ -236,7 +236,7 @@ export function NavigationBar() {
       transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
     >
       {/* Animated background lines */}
-      {scrolled && (
+      {/* {scrolled && (
         <div className="absolute inset-0 overflow-hidden z-[-1] opacity-30">
           <svg className="w-full h-full">
             <motion.line
@@ -270,7 +270,7 @@ export function NavigationBar() {
             />
           </svg>
         </div>
-      )}
+      )} */}
 
       <div className="container mx-auto px-6 max-w-6xl">
         <div className="flex justify-between items-center">
@@ -278,7 +278,7 @@ export function NavigationBar() {
 
           <div className="flex items-center gap-4">
             {/* CTA Button */}
-            <motion.a
+            {/* <motion.a
               href="/get-started"
               className="hidden sm:flex items-center text-xs font-semibold text-white px-5 py-2.5 gap-2"
               style={{
@@ -312,7 +312,7 @@ export function NavigationBar() {
               >
                 <ArrowRight size={14} />
               </motion.div>
-            </motion.a>
+            </motion.a> */}
 
             {/* Desktop Navigation */}
             <motion.nav

@@ -229,7 +229,7 @@ export default function VoiceChat({
           <ControlBar
             onConnectButtonClicked={fetchToken}
             agentState={agentState}
-            onDisconnect={handleDisconnect}
+            // onDisconnect={handleDisconnect}
             onClose={handleClose}
           />
           <RoomAudioRenderer />
@@ -341,7 +341,7 @@ function SimpleVoiceAssistant(props: {
             {state === "connecting" && "Connecting"}
             {state === "disconnected" && "Offline"}
           </motion.span>
-          {/* Animated wave rings */}
+          {/* Animated wave rings
           {(state === "speaking" || state === "listening") && (
             <>
               {[...Array(3)].map((_, i) => (
@@ -367,7 +367,7 @@ function SimpleVoiceAssistant(props: {
                 />
               ))}
             </>
-          )}
+          )} */}
         </motion.div>
       </motion.div>
     </div>
@@ -375,21 +375,25 @@ function SimpleVoiceAssistant(props: {
 }
 
 function ControlBar(props: {
-  onConnectButtonClicked: () => Promise<void>;
+  onConnectButtonClicked: () => void;
   agentState: AgentState;
-  onDisconnect: () => void;
   onClose: () => void;
 }) {
+  /**
+   * Use Krisp background noise reduction when available.
+   * Note: This is only available on Scale plan, see {@link https://livekit.io/pricing | LiveKit Pricing} for more details.
+   */
+
   return (
-    <div className="relative h-[100px] flex items-center justify-center">
+    <div className="relative h-[100px]">
       <AnimatePresence>
         {props.agentState === "disconnected" && (
           <motion.button
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="uppercase px-6 py-2.5 bg-white text-black rounded-md font-medium shadow-sm hover:bg-white/90 transition-colors"
+            initial={{ opacity: 0, top: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, top: "-10px" }}
+            transition={{ duration: 1, ease: [0.09, 1.04, 0.245, 1.055] }}
+            className="uppercase absolute left-1/2 -translate-x-1/2 px-4 py-2 bg-white text-black rounded-md"
             onClick={() => props.onConnectButtonClicked()}
           >
             Start a conversation
@@ -400,28 +404,19 @@ function ControlBar(props: {
         {props.agentState !== "disconnected" &&
           props.agentState !== "connecting" && (
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
-              className="flex items-center space-x-4 px-4 py-3 bg-black/10 backdrop-blur-sm rounded-full"
+              initial={{ opacity: 0, top: "10px" }}
+              animate={{ opacity: 1, top: 0 }}
+              exit={{ opacity: 0, top: "-10px" }}
+              transition={{ duration: 0.4, ease: [0.09, 1.04, 0.245, 1.055] }}
+              className="flex h-8 absolute left-1/2 -translate-x-1/2  justify-center"
             >
-              <VoiceAssistantControlBar
-                controls={{ leave: false }}
-                className="flex items-center "
-              />
+              <VoiceAssistantControlBar controls={{ leave: false }} />
               <DisconnectButton
-                onClick={props.onDisconnect}
-                className="h-9 w-9 rounded-full bg-black/10 hover:bg-black/20 flex items-center justify-center transition-colors"
-              >
-                <PauseIcon />
-              </DisconnectButton>
-              <button
                 onClick={props.onClose}
-                className="h-9 w-9 rounded-full bg-red-500/20 hover:bg-red-500/30 flex items-center justify-center transition-colors"
+                className="flex items-center justify-center h-8 w-8 rounded-md bg-red-500/10 hover:bg-red-500/20 text-red-500"
               >
                 <CloseIcon />
-              </button>
+              </DisconnectButton>
             </motion.div>
           )}
       </AnimatePresence>
@@ -435,23 +430,6 @@ function onDeviceFailure(error?: MediaDeviceFailure) {
     "Error acquiring microphone permissions. Please make sure you grant the necessary permissions in your browser and reload the tab"
   );
 }
-
-// Additional icon for pause/disconnect function
-function PauseIcon() {
-  return (
-    <svg
-      width="16"
-      height="16"
-      viewBox="0 0 16 16"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <rect x="3" y="3" width="3" height="10" rx="1" fill="currentColor" />
-      <rect x="10" y="3" width="3" height="10" rx="1" fill="currentColor" />
-    </svg>
-  );
-}
-
 // Simple CloseIcon component
 function CloseIcon() {
   return (
