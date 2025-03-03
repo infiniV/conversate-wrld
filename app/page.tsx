@@ -1,13 +1,15 @@
 "use client";
 
+import { NavigationBar } from "@/components/NavigationBar";
 import { LandingHero } from "@/components/LandingHero";
-import { NavigationBar } from "../components/NavigationBar";
+import { FeaturesSection } from "@/components/FeaturesSection";
 
 export default function Home() {
   return (
     <>
       <NavigationBar />
       <LandingHero />
+      <FeaturesSection />
     </>
   );
 }

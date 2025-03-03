@@ -194,6 +194,59 @@ const LogoSection = () => {
   );
 };
 
+const NavBackground = () => {
+  return (
+    <div className="absolute inset-0 z-0 overflow-hidden">
+      {/* Grid pattern */}
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), 
+          linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px)`,
+          backgroundSize: "20px 20px",
+          opacity: 0.5,
+        }}
+      />
+
+      {/* Animated accent line */}
+      <div className="absolute inset-0">
+        <motion.div
+          className="absolute h-[1px] w-full bottom-0"
+          style={{
+            background: `linear-gradient(90deg, transparent, ${ThemeColors.accent}40, transparent)`,
+          }}
+          animate={{
+            left: ["-100%", "100%"],
+          }}
+          transition={{
+            duration: 3,
+            repeat: Infinity,
+            ease: "linear",
+          }}
+        />
+      </div>
+
+      {/* Subtle glow effects */}
+      <motion.div
+        className="absolute -right-32 top-0 w-64 h-full"
+        style={{
+          background: `linear-gradient(90deg, transparent, ${ThemeColors.accent}05)`,
+          filter: "blur(40px)",
+        }}
+        animate={{
+          opacity: [0.3, 0.6, 0.3],
+          x: [0, -30, 0],
+        }}
+        transition={{
+          duration: 5,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+      />
+    </div>
+  );
+};
+
 export function NavigationBar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -228,51 +281,16 @@ export function NavigationBar() {
       }`}
       style={{
         backdropFilter: scrolled ? "blur(12px)" : "none",
-        background: scrolled ? "rgba(0,0,0,0.4)" : "transparent",
-        boxShadow: scrolled ? "0 1px 0 rgba(255,255,255,0.05)" : "none",
+        background: scrolled ? "rgba(0,0,0,0.65)" : "transparent",
       }}
       initial={{ opacity: 0, y: -15 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
     >
-      {/* Animated background lines */}
-      {/* {scrolled && (
-        <div className="absolute inset-0 overflow-hidden z-[-1] opacity-30">
-          <svg className="w-full h-full">
-            <motion.line
-              x1="0%"
-              y1="100%"
-              x2="100%"
-              y2="0%"
-              stroke={ThemeColors.accent}
-              strokeWidth="1"
-              strokeDasharray="1,30"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-            />
-            <motion.line
-              x1="0%"
-              y1="0%"
-              x2="100%"
-              y2="100%"
-              stroke={ThemeColors.secondaryAccents.cyan}
-              strokeWidth="1"
-              strokeDasharray="1,30"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{
-                duration: 15,
-                repeat: Infinity,
-                ease: "linear",
-                delay: 0.5,
-              }}
-            />
-          </svg>
-        </div>
-      )} */}
+      {/* Only show NavBackground when scrolled */}
+      {scrolled && <NavBackground />}
 
-      <div className="container mx-auto px-6 max-w-6xl">
+      <div className="container mx-auto px-6 max-w-6xl relative z-10">
         <div className="flex justify-between items-center">
           <LogoSection />
 

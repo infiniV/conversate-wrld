@@ -5,14 +5,21 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Suspense } from "react";
 import { motion, AnimatePresence, useSpring } from "framer-motion";
 import { ArrowRight, MessageSquare, Phone } from "lucide-react";
-import { OrbComponent } from "./OrbComponent";
+// import { OrbComponent } from "./OrbComponent";
 import { ThemeColors, ThemeTransitions } from "./ThemeConstants";
 import { useTheme } from "next-themes";
 import { Vector3, MathUtils } from "three";
 import VoiceChat from "./VoiceChat";
 import { AgentState } from "@livekit/components-react";
 import AmbientRings from "./ambientRings";
-
+import dynamic from "next/dynamic";
+const OrbComponentlazy = dynamic(
+  () => import("./OrbComponent").then((mod) => ({ default: mod.OrbComponent })),
+  {
+    loading: () => null,
+    ssr: false,
+  }
+);
 // Enhanced camera controller with more fluid and dynamic movements
 const CameraController = ({
   active,
@@ -417,7 +424,7 @@ export const LandingHero = () => {
             eventPrefix="client"
           >
             <Suspense fallback={null}>
-              <OrbComponent
+              <OrbComponentlazy
                 color={getOrbColor()}
                 hoverColor={ThemeColors.secondaryAccents.cyan}
                 grainCount={voiceChatActive ? 1400 : 1200}
