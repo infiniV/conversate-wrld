@@ -443,9 +443,7 @@ export const LandingHero = () => {
                 voiceMode={voiceChatActive}
               />
               <AmbientRings color={getOrbColor()} />
-              {/* Add ambient particles for depth */}
             </Suspense>
-
             {/* Enhanced camera controller */}
             <CameraController
               active={loaded}

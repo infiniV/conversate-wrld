@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
-import "./globals.css";
+import "@/app/globals.css";
 import React from "react";
 import { ThemeProvider } from "../components/ThemeProvider";
 import { ThemeSwitcher } from "../components/ThemeSwitcher";
@@ -41,6 +41,7 @@ export default function RootLayout({
         >
           {children}
           <ThemeSwitcher />
+          {/* <SectionSelector /> */}
         </ThemeProvider>
       </body>
     </html>

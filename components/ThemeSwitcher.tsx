@@ -3,199 +3,111 @@
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { motion } from "framer-motion";
-import { Sun, Moon, Monitor } from "lucide-react";
+import { Sun, Moon } from "lucide-react";
+import { ThemeColors } from "./ThemeConstants";
 import React from "react";
 
 export const ThemeSwitcher = () => {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
-  const [isOpen, setIsOpen] = useState(false);
 
-  // Ensure component is mounted to avoid hydration mismatch
   useEffect(() => setMounted(true), []);
 
   if (!mounted) return null;
 
-  const toggleTheme = (newTheme: string) => {
-    setTheme(newTheme);
-    setIsOpen(false);
-  };
-
-  const variants = {
-    open: {
-      opacity: 1,
-      height: "auto",
-      transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 24,
-      },
-    },
-    closed: {
-      opacity: 0,
-      height: 0,
-      transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 24,
-      },
-    },
-  };
-
-  // Icon components based on current theme
-  const CurrentThemeIcon = () => {
-    if (theme === "dark") return <Moon size={16} />;
-    if (theme === "light") return <Sun size={16} />;
-    return <Monitor size={16} />;
+  const toggleTheme = () => {
+    setTheme(theme === "dark" ? "light" : "dark");
   };
 
   return (
     <div className="fixed bottom-6 right-6 z-50">
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="relative"
+      <motion.button
+        onClick={toggleTheme}
+        className="flex items-center gap-4 px-5 py-2.5 text-left text-xs relative overflow-hidden"
+        style={{
+          clipPath:
+            "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
+          background: theme === "dark" ? "#000000" : "#FFFFFF",
+          border: `1px solid ${ThemeColors.accent}20`,
+          boxShadow:
+            theme === "dark"
+              ? `0 0 20px rgba(0, 0, 0, 0.4), 0 0 15px ${ThemeColors.accent}15`
+              : `0 4px 15px rgba(0, 0, 0, 0.1), 0 0 15px ${ThemeColors.accent}10`,
+        }}
+        whileHover={{
+          scale: 1.02,
+          y: -1,
+          borderColor: `${ThemeColors.accent}40`,
+        }}
+        whileTap={{ scale: 0.98, y: 1 }}
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
       >
-        {/* Main button */}
-        <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center justify-center w-10 h-10 rounded-full"
+        {/* Background pattern */}
+        <div
+          className="absolute inset-0 opacity-5"
           style={{
-            clipPath:
-              "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
-            background:
+            backgroundImage:
               theme === "dark"
-                ? "linear-gradient(135deg, rgba(255, 61, 113, 0.2), rgba(6, 182, 212, 0.2))"
-                : "linear-gradient(135deg, rgba(255, 61, 113, 0.8), rgba(6, 182, 212, 0.8))",
-            boxShadow:
-              theme === "dark"
-                ? "0 0 15px rgba(255, 61, 113, 0.2), inset 0 0 0 1px rgba(255, 255, 255, 0.1)"
-                : "0 2px 10px rgba(0, 0, 0, 0.1), inset 0 0 0 1px rgba(255, 255, 255, 0.2)",
+                ? "linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px)"
+                : "linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 0, 0, 0.05) 1px, transparent 1px)",
+            backgroundSize: "8px 8px",
           }}
-        >
+        />
+
+        {/* Icons container */}
+        <div className="flex items-center gap-4 relative z-10">
           <motion.div
-            whileHover={{ rotate: 45 }}
-            whileTap={{ scale: 0.9 }}
-            transition={{ type: "spring", stiffness: 400, damping: 17 }}
-            className="text-white"
+            animate={{
+              scale: theme === "dark" ? 1 : 0.85,
+              opacity: theme === "dark" ? 1 : 0.3,
+            }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className={theme === "dark" ? "text-cyan-400" : "text-gray-400"}
           >
-            <CurrentThemeIcon />
+            <Moon size={15} />
           </motion.div>
-        </button>
+          <motion.div
+            animate={{
+              scale: theme === "light" ? 1 : 0.85,
+              opacity: theme === "light" ? 1 : 0.3,
+            }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+            className={theme === "light" ? "text-amber-500" : "text-gray-400"}
+          >
+            <Sun size={15} />
+          </motion.div>
+        </div>
 
-        {/* Dropdown menu */}
+        {/* Slider background */}
         <motion.div
-          initial="closed"
-          animate={isOpen ? "open" : "closed"}
-          variants={variants}
-          className="absolute bottom-full mb-2 right-0 overflow-hidden"
+          className="absolute inset-0 z-0"
+          initial={false}
+          animate={{
+            x: theme === "dark" ? "0%" : "50%",
+          }}
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
           style={{
-            clipPath:
-              "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
+            width: "50%",
             background:
               theme === "dark"
-                ? "rgba(0, 0, 0, 0.8)"
-                : "rgba(255, 255, 255, 0.9)",
-            backdropFilter: "blur(12px)",
-            border:
-              theme === "dark"
-                ? "1px solid rgba(255, 255, 255, 0.1)"
-                : "1px solid rgba(0, 0, 0, 0.05)",
-            boxShadow:
-              theme === "dark"
-                ? "0 10px 25px rgba(0, 0, 0, 0.5)"
-                : "0 10px 25px rgba(0, 0, 0, 0.1)",
-            width: "140px",
+                ? "linear-gradient(rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.95))"
+                : "linear-gradient(rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.95))",
+            borderRight: `1px solid ${ThemeColors.accent}20`,
           }}
-        >
-          <div className="p-2 flex flex-col gap-1">
-            {/* Dark theme option */}
-            <ThemeOption
-              icon={<Moon size={14} />}
-              label="Dark"
-              onClick={() => toggleTheme("dark")}
-              active={theme === "dark"}
-              currentTheme={theme}
-            />
+        />
 
-            {/* Light theme option */}
-            <ThemeOption
-              icon={<Sun size={14} />}
-              label="Light"
-              onClick={() => toggleTheme("light")}
-              active={theme === "light"}
-              currentTheme={theme}
-            />
-
-            {/* System theme option */}
-            <ThemeOption
-              icon={<Monitor size={14} />}
-              label="System"
-              onClick={() => toggleTheme("system")}
-              active={theme === "system"}
-              currentTheme={theme}
-            />
-          </div>
-        </motion.div>
-      </motion.div>
-    </div>
-  );
-};
-
-interface ThemeOptionProps {
-  icon: React.ReactNode;
-  label: string;
-  onClick: () => void;
-  active: boolean;
-  currentTheme: string | undefined;
-}
-
-const ThemeOption = ({
-  icon,
-  label,
-  onClick,
-  active,
-  currentTheme,
-}: ThemeOptionProps) => {
-  const isDark = currentTheme === "dark";
-
-  return (
-    <motion.button
-      whileHover={{ scale: 1.02, x: 2 }}
-      whileTap={{ scale: 0.98 }}
-      onClick={onClick}
-      className={`flex items-center w-full gap-2 px-3 py-1.5 text-left text-xs rounded-sm
-        ${
-          active
-            ? isDark
-              ? "bg-white/10 text-white"
-              : "bg-black/10 text-black"
-            : isDark
-            ? "text-gray-300 hover:text-white"
-            : "text-gray-700 hover:text-black"
-        }
-      `}
-      style={{
-        clipPath:
-          "polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px))",
-      }}
-    >
-      <span className="opacity-80">{icon}</span>
-      <span className="font-medium tracking-wide">{label}</span>
-
-      {active && (
+        {/* Active indicator */}
         <motion.div
-          layoutId="activeIndicator"
-          className="ml-auto w-1 h-3"
+          layoutId="themeIndicator"
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3 w-1"
           style={{
-            background: isDark
-              ? "linear-gradient(to bottom, #FF3D71, #06B6D4)"
-              : "linear-gradient(to bottom, #FF3D71, #06B6D4)",
+            background: ThemeColors.accent,
+            boxShadow: `0 0 10px ${ThemeColors.accent}80`,
           }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         />
-      )}
-    </motion.button>
+      </motion.button>
+    </div>
   );
 };
