@@ -6,6 +6,8 @@ import { LandingHero } from "./LandingHero";
 import { useTheme } from "next-themes";
 import { ThemeColors } from "./ThemeConstants";
 
+// No need to register SplitText since we're using a custom approach
+
 interface LandingRevealProps {
   onRevealComplete: () => void;
 }
@@ -15,10 +17,8 @@ export default function LandingReveal({
 }: LandingRevealProps) {
   const [isRevealed, setIsRevealed] = useState(false);
   const [assetsLoaded, setAssetsLoaded] = useState(false);
-  const [transitionActive, setTransitionActive] = useState(false);
   const revealContainerRef = useRef<HTMLDivElement>(null);
   const textRef = useRef<HTMLDivElement>(null);
-  const heroRef = useRef<HTMLDivElement>(null);
   const { theme, systemTheme } = useTheme();
 
   // Determine the current theme
@@ -79,78 +79,51 @@ export default function LandingReveal({
 
   // Handle transition when assets are loaded
   useEffect(() => {
-    if (assetsLoaded && !isRevealed && !transitionActive) {
-      // Set transition active to prevent double triggering
-      setTransitionActive(true);
+    if (assetsLoaded && !isRevealed) {
+      // Only proceed if View Transitions API is available
+      if (document.startViewTransition) {
+        const transition = document.startViewTransition(async () => {
+          // Mark as revealed to render the main content
+          setIsRevealed(true);
+          onRevealComplete(); // Call the callback when reveal is complete
+        });
 
-      // Pre-render hero hidden for smooth transition
-      setTimeout(() => {
-        // Only proceed if View Transitions API is available
-        if (document.startViewTransition) {
-          const transition = document.startViewTransition(async () => {
-            // Set up for the transparent characters animation
-            if (textRef.current) {
-              const chars = textRef.current.querySelectorAll(".char");
-
-              gsap.to(chars, {
-                opacity: 0,
-                y: -15,
-                scale: 1.2,
-                stagger: 0.02,
-                duration: 0.7,
-                ease: "power2.in",
-                delay: 0.2,
-              });
-            }
-
-            // Mark as revealed halfway through the animation
-            setTimeout(() => {
-              setIsRevealed(true);
-              onRevealComplete();
-            }, 600); // Half of transition duration
-          });
-
-          // Handle container scaling
-          transition.ready.then(() => {
-            if (revealContainerRef.current) {
-              gsap.to(revealContainerRef.current, {
-                scale: 1.2,
-                opacity: 0,
-                duration: 1.2,
-                ease: "power3.inOut",
-              });
-            }
-          });
-        } else {
-          // Fallback for browsers without View Transitions API
-          if (textRef.current) {
-            const chars = textRef.current.querySelectorAll(".char");
-            gsap.to(chars, {
-              opacity: 0,
-              y: -15,
-              scale: 1.2,
-              stagger: 0.02,
-              duration: 0.7,
-              ease: "power2.in",
-            });
-          }
-
+        // Add custom animation for the transition
+        transition.ready.then(() => {
           if (revealContainerRef.current) {
             gsap.to(revealContainerRef.current, {
-              scale: 1.2,
+              scale: 5,
               opacity: 0,
               duration: 1.2,
               ease: "power3.inOut",
-              onComplete: () => {
-                setIsRevealed(true);
-                onRevealComplete();
-              },
             });
           }
+        });
+      } else {
+        // Fallback for browsers without View Transitions API
+        if (revealContainerRef.current) {
+          gsap.to(revealContainerRef.current, {
+            scale: 5,
+            opacity: 0,
+            duration: 1.2,
+            ease: "power3.inOut",
+            onComplete: () => {
+              setIsRevealed(true);
+              onRevealComplete(); // Call the callback when reveal is complete
+            },
+          });
         }
-      }, 300);
+      }
     }
-  }, [assetsLoaded, isRevealed, onRevealComplete, transitionActive]);
+  }, [assetsLoaded, isRevealed, onRevealComplete]);
+
+  if (isRevealed) {
+    return (
+      <>
+        <LandingHero />
+      </>
+    );
+  }
 
   // Helper function to wrap each letter in a span
   const wrapLettersInSpans = (text: string, className: string) => {
@@ -166,66 +139,49 @@ export default function LandingReveal({
   };
 
   return (
-    <>
-      {/* Always render the hero but initially hidden for smooth transition */}
-      <div
-        ref={heroRef}
-        className={`absolute inset-0 z-40 ${
-          isRevealed ? "opacity-100" : "opacity-0"
-        }`}
-        style={{
-          viewTransitionName: "hero-content",
-          transition: "opacity 0.5s ease-in-out",
-        }}
-      >
-        {isRevealed && <LandingHero />}
-      </div>
-
-      <div
-        className={`fixed inset-0 flex items-center justify-center z-50 ${
-          isDark ? "bg-[#09090B]" : "bg-[#FAFAFA]"
-        } ${isRevealed ? "pointer-events-none" : ""}`}
-        ref={revealContainerRef}
-        style={{
-          viewTransitionName: "reveal-transition",
-        }}
-      >
-        <div className="relative" ref={textRef}>
-          <h1
-            className={`text-7xl md:text-8xl lg:text-9xl font-bold ${
-              isDark ? "text-white" : "text-gray-900"
-            } relative z-10`}
-          >
-            <span className="inline-block">
-              {wrapLettersInSpans("convers", "")}
-            </span>
-            <span className="inline-block text-[#FF3D71]">
-              {wrapLettersInSpans("ate", "")}
-            </span>
-          </h1>
-          <div
-            className="absolute -inset-10 blur-3xl rounded-full opacity-30"
-            style={{
-              background: `radial-gradient(circle, ${ThemeColors.accent}60 0%, transparent 70%)`,
-              viewTransitionName: "reveal-glow",
-            }}
-          />
-          {assetsLoaded && (
-            <div className="mt-8 flex justify-center">
-              <div className="relative overflow-hidden h-1 w-48 bg-gray-200 rounded-full">
-                <div
-                  className="absolute top-0 left-0 h-full bg-[#FF3D71] rounded-full"
-                  style={{
-                    width: "100%",
-                    animation: "progress 1s ease-out forwards",
-                  }}
-                />
-              </div>
+    <div
+      className={`fixed inset-0 flex items-center justify-center z-50 ${
+        isDark ? "bg-[#09090B]" : "bg-[#FAFAFA]"
+      }`}
+      ref={revealContainerRef}
+      style={{
+        viewTransitionName: "reveal-transition",
+      }}
+    >
+      <div className="relative" ref={textRef}>
+        <h1
+          className={`text-7xl md:text-8xl lg:text-9xl font-bold ${
+            isDark ? "text-white" : "text-gray-900"
+          } relative z-10`}
+        >
+          <span className="inline-block">
+            {wrapLettersInSpans("convers", "")}
+          </span>
+          <span className="inline-block text-[#FF3D71]">
+            {wrapLettersInSpans("ate", "")}
+          </span>
+        </h1>
+        <div
+          className="absolute -inset-10 blur-3xl rounded-full opacity-30"
+          style={{
+            background: `radial-gradient(circle, ${ThemeColors.accent}60 0%, transparent 70%)`,
+            viewTransitionName: "reveal-glow",
+          }}
+        />
+        {assetsLoaded && (
+          <div className="mt-8 flex justify-center">
+            <div className="relative overflow-hidden h-1 w-48 bg-gray-200 rounded-full">
+              <div
+                className="absolute top-0 left-0 h-full bg-[#FF3D71] rounded-full"
+                style={{
+                  width: "100%",
+                  animation: "progress 1s ease-out forwards",
+                }}
+              />
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
-
       <style jsx global>{`
         @keyframes progress {
           from {
@@ -239,44 +195,31 @@ export default function LandingReveal({
         .char {
           display: inline-block;
           transform-origin: center bottom;
-          transition: opacity 0.3s ease-out, transform 0.4s ease-out;
         }
 
         @keyframes view-transition-reveal-animation {
           from {
+            opacity: 0;
+            transform: scale(0.8);
+          }
+          to {
             opacity: 1;
             transform: scale(1);
           }
-          to {
-            opacity: 0;
-            transform: scale(1.1);
-          }
-        }
-
-        ::view-transition {
-          animation-duration: 1.2s;
-          animation-timing-function: cubic-bezier(0.76, 0, 0.24, 1);
         }
 
         ::view-transition-old(reveal-transition) {
-          animation: 1.2s cubic-bezier(0.76, 0, 0.24, 1) both fade-out;
-          animation-delay: 0s;
-          mix-blend-mode: normal;
+          animation: 0.7s cubic-bezier(0.76, 0, 0.24, 1) both fade-out;
         }
 
-        ::view-transition-new(hero-content) {
-          animation: 1.2s cubic-bezier(0.22, 1, 0.36, 1) both fade-in;
-          animation-delay: 0.5s; /* Start halfway through */
-        }
-
-        ::view-transition-old(reveal-glow) {
-          animation: 1s cubic-bezier(0.76, 0, 0.24, 1) both glow-out;
+        ::view-transition-new(reveal-transition) {
+          animation: 0.7s cubic-bezier(0.76, 0, 0.24, 1) both fade-in;
         }
 
         @keyframes fade-in {
           from {
             opacity: 0;
-            transform: scale(0.96);
+            transform: scale(0.9);
           }
           to {
             opacity: 1;
@@ -294,20 +237,7 @@ export default function LandingReveal({
             transform: scale(1.1);
           }
         }
-
-        @keyframes glow-out {
-          from {
-            opacity: 0.3;
-            transform: scale(1);
-            filter: blur(3xl);
-          }
-          to {
-            opacity: 0;
-            transform: scale(2);
-            filter: blur(5xl);
-          }
-        }
       `}</style>
-    </>
+    </div>
   );
 }
