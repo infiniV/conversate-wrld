@@ -64,9 +64,9 @@ export const PricingSectionBackground = () => {
         className="absolute inset-0"
         style={{
           background: isDark
-            ? `linear-gradient(to bottom, ${ThemeColors.dark.background}ee, ${ThemeColors.dark.background}80)`
-            : `linear-gradient(to bottom, ${ThemeColors.light.background}90, ${ThemeColors.light.background}40)`,
-          opacity: 0.95,
+            ? `linear-gradient(to bottom, ${ThemeColors.dark.background}f5, ${ThemeColors.dark.background}90)`
+            : `linear-gradient(to bottom, ${ThemeColors.light.background}95, ${ThemeColors.light.background}60)`,
+          opacity: 0.98,
         }}
       />
 
@@ -82,10 +82,14 @@ export const PricingSectionBackground = () => {
               width: `${star.size}px`,
               height: `${star.size}px`,
               backgroundColor: star.color,
-              boxShadow: star.size > 2 ? `0 0 4px 1px ${star.color}60` : "none",
+              boxShadow: star.size > 2 ? `0 0 4px 1px ${star.color}40` : "none",
             }}
             animate={{
-              opacity: [star.opacity, star.opacity * 1.5, star.opacity],
+              opacity: [
+                star.opacity * 0.8,
+                star.opacity * 1.2,
+                star.opacity * 0.8,
+              ],
               scale: [1, 1.2, 1],
             }}
             transition={{
@@ -122,7 +126,7 @@ export const PricingSectionBackground = () => {
             }}
             animate={{
               x: ["0%", "100vw"],
-              opacity: [0, 0, 0.8, 0],
+              opacity: [0, 0, 0.6, 0],
             }}
             transition={{
               duration: 2,
@@ -142,17 +146,17 @@ export const PricingSectionBackground = () => {
             key={`nebula-${i}`}
             className="absolute rounded-full"
             style={{
-              background: `radial-gradient(ellipse at center, ${color}10, ${color}08, transparent 70%)`,
+              background: `radial-gradient(ellipse at center, ${color}08, ${color}05, transparent 70%)`,
               width: `${600 + i * 400}px`,
               height: `${600 + i * 400}px`,
               left: `${i === 0 ? 70 : 20}%`,
               top: `${i === 0 ? 20 : 60}%`,
               filter: "blur(80px)",
-              opacity: isDark ? 0.2 : 0.15,
+              opacity: isDark ? 0.15 : 0.1,
             }}
             animate={{
               scale: [1, 1.1, 1],
-              opacity: isDark ? [0.2, 0.25, 0.2] : [0.15, 0.2, 0.15],
+              opacity: isDark ? [0.15, 0.2, 0.15] : [0.1, 0.15, 0.1],
             }}
             transition={{
               duration: 20 + i * 10,
@@ -168,11 +172,11 @@ export const PricingSectionBackground = () => {
       <motion.div
         className="absolute bottom-0 left-0 right-0 h-[400px]"
         style={{
-          background: `linear-gradient(to top, ${ThemeColors.accent}15, ${ThemeColors.secondaryAccents.cyan}08, transparent)`,
-          opacity: isDark ? 0.1 : 0.07,
+          background: `linear-gradient(to top, ${ThemeColors.accent}10, ${ThemeColors.secondaryAccents.cyan}05, transparent)`,
+          opacity: isDark ? 0.08 : 0.05,
         }}
         animate={{
-          opacity: isDark ? [0.1, 0.15, 0.1] : [0.07, 0.1, 0.07],
+          opacity: isDark ? [0.08, 0.12, 0.08] : [0.05, 0.08, 0.05],
         }}
         transition={{
           duration: 10,

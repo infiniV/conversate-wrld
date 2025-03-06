@@ -1,18 +1,13 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useTheme } from "next-themes";
 import { ThemeColors } from "./ThemeConstants";
 
 export const FuturisticBackground = () => {
-  const { theme, systemTheme } = useTheme();
-  const currentTheme = theme === "system" ? systemTheme : theme;
-  const isDark = currentTheme === "dark";
-
   return (
     <div className="absolute inset-0 overflow-hidden">
       {/* Grid pattern */}
-      <div
+      {/* <div
         className="absolute inset-0"
         style={{
           backgroundImage: `linear-gradient(${
@@ -24,9 +19,8 @@ export const FuturisticBackground = () => {
           backgroundSize: "40px 40px",
           opacity: 0.1,
         }}
-      />
+      /> */}
 
-      {/* Animated circles */}
       {[...Array(3)].map((_, i) => (
         <motion.div
           key={i}
@@ -36,11 +30,11 @@ export const FuturisticBackground = () => {
             width: `${300 + i * 100}px`,
             height: `${300 + i * 100}px`,
             left: `${20 + i * 30}%`,
-            top: `${20 + i * 20}%`,
+            top: `${Math.min(20 + i * 20, 30)}%`, // Capping the top position at 70%
           }}
           animate={{
             x: [0, 30, 0],
-            y: [0, 20, 0],
+            y: [0, Math.min(20, 70 - (20 + i * 20)), 0], // Adjusting y animation to stay within bounds
           }}
           transition={{
             duration: 8 + i * 2,
@@ -63,20 +57,20 @@ export const FuturisticBackground = () => {
         {[...Array(5)].map((_, i) => (
           <motion.path
             key={i}
-            d={`M${-100 + i * 400},0 Q${100 + i * 400},${500} ${
-              -100 + i * 400
-            },1000`}
+            d={`M0,${-100 + i * 400} Q${window.innerWidth / 2},${
+              100 + i * 400
+            } ${window.innerWidth},${-100 + i * 400}`}
             animate={{
               d: [
-                `M${-100 + i * 400},0 Q${100 + i * 400},${500} ${
-                  -100 + i * 400
-                },1000`,
-                `M${-50 + i * 400},0 Q${200 + i * 400},${500} ${
-                  -50 + i * 400
-                },1000`,
-                `M${-100 + i * 400},0 Q${100 + i * 400},${500} ${
-                  -100 + i * 400
-                },1000`,
+                `M0,${-100 + i * 400} Q${window.innerWidth / 2},${
+                  100 + i * 400
+                } ${window.innerWidth},${-100 + i * 400}`,
+                `M0,${-50 + i * 400} Q${window.innerWidth / 2},${
+                  200 + i * 400
+                } ${window.innerWidth},${-50 + i * 400}`,
+                `M0,${-100 + i * 400} Q${window.innerWidth / 2},${
+                  100 + i * 400
+                } ${window.innerWidth},${-100 + i * 400}`,
               ],
             }}
             transition={{

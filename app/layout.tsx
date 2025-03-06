@@ -18,9 +18,9 @@ const geistMono = Geist_Mono({
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Conversate | AI Autonomous Customer Care System",
+  title: "Conversate - The Future of Customer Care",
   description:
-    "Conversate provides seamless AI-powered customer care with voice support, chat support, and call support that can be easily integrated into web applications and call systems.",
+    "Seamless interactions across all channels. Deliver exceptional experiences through our intelligent autonomous system.",
 };
 
 export default function RootLayout({
@@ -30,6 +30,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <meta name="view-transition" content="same-origin" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${inter.className} antialiased`}
       >
@@ -41,7 +44,6 @@ export default function RootLayout({
         >
           {children}
           <ThemeSwitcher />
-          {/* <SectionSelector /> */}
         </ThemeProvider>
       </body>
     </html>

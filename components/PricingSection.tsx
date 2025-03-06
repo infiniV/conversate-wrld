@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ThemeColors } from "./ThemeConstants";
 import { useTheme } from "next-themes";
 import { Check, ArrowRight, Sparkles } from "lucide-react";
-import { PricingSectionBackground } from "./PricingSectionBackground";
+import { FuturisticSideLightBackground } from "./FuturisticSideLightBackground";
 
 export const PricingSection = () => {
   const { theme, systemTheme } = useTheme();
@@ -64,8 +64,9 @@ export const PricingSection = () => {
   ];
 
   return (
-    <section className="py-32 px-4 relative overflow-hidden">
-      <PricingSectionBackground />
+    <section className="bg-transparent py-32 px-4 relative overflow-hidden">
+      {/* Add the PricingSectionBackground for stars */}
+      <FuturisticSideLightBackground side="both" intensity={0.6} />
 
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
@@ -118,7 +119,7 @@ export const PricingSection = () => {
               whileHover={{ y: -5 }}
             >
               <div
-                className={`h-full relative p-8 group transition-all duration-300 ${
+                className={`h-full  relative p-8 group transition-all duration-300 ${
                   isDark
                     ? "bg-[rgba(255,255,255,0.02)]"
                     : "bg-[rgba(0,0,0,0.01)]"
@@ -126,14 +127,17 @@ export const PricingSection = () => {
                 style={{
                   clipPath:
                     "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
-                  border: plan.popular
-                    ? `1px solid ${ThemeColors.accent}`
-                    : isDark
-                    ? "1px solid rgba(255,255,255,0.1)"
-                    : "1px solid rgba(0,0,0,0.1)",
+                  border: `1px solid ${
+                    plan.popular
+                      ? ThemeColors.accent
+                      : isDark
+                      ? "rgba(255,255,255,0.1)"
+                      : "rgba(0,0,0,0.1)"
+                  }`,
                   backdropFilter: "blur(12px)",
                 }}
               >
+                {/* Rest of the code remains the same */}
                 {/* Add hover glow effect */}
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <div

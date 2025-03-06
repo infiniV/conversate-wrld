@@ -408,6 +408,7 @@ export const LandingHero = () => {
     <div
       className={`relative w-full h-screen overflow-hidden ${
         isDark ? "bg-[#09090B] text-[#FFFFFF]" : "bg-[#FAFAFA] text-[#111827]"
+      }
       } transition-colors`}
       style={{ transition: ThemeTransitions.default }}
     >
