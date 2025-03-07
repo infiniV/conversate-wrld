@@ -13,6 +13,7 @@ import VoiceChat from "./VoiceChat";
 import { AgentState } from "@livekit/components-react";
 import AmbientRings from "./ambientRings";
 import dynamic from "next/dynamic";
+import FuturisticContactBackground from "./FuturisticContactBackground";
 const OrbComponentlazy = dynamic(
   () => import("./OrbComponent").then((mod) => ({ default: mod.OrbComponent })),
   {
@@ -424,7 +425,7 @@ export const LandingHero = () => {
       className={`relative w-full h-screen overflow-hidden ${
         isDark ? "bg-[#09090B] text-[#FFFFFF]" : "bg-[#FAFAFA] text-[#111827]"
       }
-      } transition-colors`}
+        } transition-colors`}
       style={{ transition: ThemeTransitions.default }}
     >
       {/* Central Orb - Modified for smoother initial render */}
@@ -434,6 +435,7 @@ export const LandingHero = () => {
             mounted ? "opacity-90" : "opacity-0"
           }`}
         >
+          <FuturisticContactBackground />
           <Canvas
             camera={{ position: [0, 0, 2], fov: 80 }}
             style={{
@@ -510,18 +512,6 @@ export const LandingHero = () => {
                   The Future of{" "}
                   <span className="text-[#FF3D71]">Customer Care</span>
                 </motion.h1>
-
-                <motion.p
-                  className={`text-base md:text-lg ${
-                    isDark ? "text-gray-300" : "text-gray-700"
-                  } mb-8 mx-auto max-w-xl`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : 20 }}
-                  transition={{ duration: 0.8, delay: 0.6 }}
-                >
-                  Seamless interactions across all channels. Deliver exceptional
-                  experiences through our intelligent autonomous system.
-                </motion.p>
 
                 {/* Centered buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">

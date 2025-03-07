@@ -28,10 +28,11 @@ const PricingSection = dynamic(
   { ssr: false }
 );
 
-// Add the new ContactSection component
-const ContactSection = dynamic(
+const TrustedCompanies = dynamic(
   () =>
-    import("../components/ContactSection").then((mod) => mod.ContactSection),
+    import("../components/TrustedCompanies").then(
+      (mod) => mod.TrustedCompanies
+    ),
   { ssr: false }
 );
 
@@ -66,9 +67,9 @@ export default function Home() {
                   ease: [0.22, 1, 0.36, 1],
                 }}
               >
+                <TrustedCompanies />
                 <FeaturesSection />
                 <PricingSection />
-                <ContactSection />
               </motion.div>
             </Suspense>
           </motion.div>
