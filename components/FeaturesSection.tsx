@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ThemeColors } from "./ThemeConstants";
-import { PowerBox3D } from "./PowerBox3D";
+import dynamic from "next/dynamic";
 import {
   Check,
   ChevronRight,
@@ -15,6 +15,28 @@ import {
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import { FuturisticBackground } from "./FuturisticBackground";
+
+// Dynamic import with loading component
+const PowerBox3D = dynamic(
+  () => import("./PowerBox3D").then((mod) => mod.PowerBox3D),
+  {
+    loading: () => (
+      <div className="w-full h-[500px] flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="w-32 h-32 rounded-lg"
+          style={{
+            background: `linear-gradient(135deg, ${ThemeColors.accent}20, transparent)`,
+          }}
+        >
+          <div className="w-full h-full animate-pulse" />
+        </motion.div>
+      </div>
+    ),
+    ssr: false,
+  }
+);
 
 const featureData = [
   {
@@ -162,13 +184,12 @@ export const FeaturesSection = () => {
 
         {/* Two-column layout with PowerBox on left, feature details on right */}
         <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-y-8 gap-x-6">
-          {/* PowerBox Column */}
+          {/* PowerBox Column with fade-in animation */}
           <motion.div
-            className="lg:col-span-6 relative "
-            style={{ overflow: "visible" }}
+            className="lg:col-span-6 relative min-h-[500px]"
             initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.8, delay: 0.2 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.8, delay: 0.3 }}
           >
             <PowerBox3D />
           </motion.div>

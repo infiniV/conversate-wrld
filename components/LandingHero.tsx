@@ -179,10 +179,10 @@ export const LandingHero = () => {
   const { theme, systemTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [orbInteractivity, setOrbInteractivity] = useState({
-    rotationSpeed: 0.04,
-    pulsateSpeed: 0.12,
-    noiseStrength: 0.12,
-    distortionStrength: 0.6,
+    rotationSpeed: 0, // Start with 0 speed
+    pulsateSpeed: 0, // Start with 0 speed
+    noiseStrength: 0, // Start with 0 strength
+    distortionStrength: 0, // Start with 0 strength
   });
   const [audioActivityLevel, setAudioActivityLevel] = useState(0);
   const [agentState, setAgentState] = useState<AgentState>("disconnected");
@@ -254,16 +254,31 @@ export const LandingHero = () => {
     orbRadius.set(targetRadius);
   }, [targetRadius, orbRadius]);
 
-  // Mount and load effects
+  // Modified mount and load effects
   useEffect(() => {
     setMounted(true);
 
-    // Stagger the loaded state for a more polished entrance
-    const timer = setTimeout(() => {
+    // Stagger the loaded state and orb animation
+    const loadTimer = setTimeout(() => {
       setLoaded(true);
+      // Gradually increase orb animation values
+      const fadeInDuration = 1000; // 1 second fade in
+      const steps = 20; // Number of steps for smooth transition
+      const stepDuration = fadeInDuration / steps;
+
+      for (let i = 1; i <= steps; i++) {
+        setTimeout(() => {
+          setOrbInteractivity({
+            rotationSpeed: (0.04 * i) / steps,
+            pulsateSpeed: (0.12 * i) / steps,
+            noiseStrength: (0.12 * i) / steps,
+            distortionStrength: (0.6 * i) / steps,
+          });
+        }, stepDuration * i);
+      }
     }, 100);
 
-    return () => clearTimeout(timer);
+    return () => clearTimeout(loadTimer);
   }, []);
 
   // Enhanced effect to adjust orb interactivity when voice chat is active
@@ -412,14 +427,20 @@ export const LandingHero = () => {
       } transition-colors`}
       style={{ transition: ThemeTransitions.default }}
     >
-      {/* Central Orb - Dynamic interactive element */}
+      {/* Central Orb - Modified for smoother initial render */}
       <div className="absolute inset-0 flex items-center justify-center z-10">
-        <div className="w-[100vw] h-[100vh] absolute opacity-90">
+        <div
+          className={`w-[100vw] h-[100vh] absolute opacity-90 transition-opacity duration-1000 ${
+            mounted ? "opacity-90" : "opacity-0"
+          }`}
+        >
           <Canvas
             camera={{ position: [0, 0, 2], fov: 80 }}
             style={{
               touchAction: "none",
               filter: isDark ? "none" : "contrast(1.05) brightness(1.05)",
+              opacity: mounted ? 1 : 0,
+              transition: "opacity 1s ease-in-out",
             }}
             eventSource={document.documentElement}
             eventPrefix="client"
