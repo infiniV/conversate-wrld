@@ -136,7 +136,7 @@ const CameraController = ({
       targetPosition.current.set(
         Math.sin(time.current * 0.1) * idleAmplitude,
         Math.sin(time.current * 0.15) * idleAmplitude - 0.2,
-        active ? 3 + Math.sin(time.current * 0.05) * 0.1 : 5
+        active ? 5 + Math.sin(time.current * 0.05) * 0.1 : 5
       );
       targetRotation.current = {
         x: Math.sin(time.current * 0.1) * 0.01 * idleAmplitude,
