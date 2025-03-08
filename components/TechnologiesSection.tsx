@@ -1,21 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { ThemeColors } from "./ThemeConstants";
 import { useTheme } from "next-themes";
-import {
-  PhoneCall,
-  Globe,
-  MessageCircle,
-  Code,
-  ExternalLink,
-  Server,
-  Check,
-  ChevronDown,
-  ChevronUp,
-} from "lucide-react";
-import { FuturisticBackground } from "./FuturisticBackground";
+import { PhoneCall, Globe, MessageCircle, Check } from "lucide-react";
+import { TechnologicalBackground } from "./TechnologicalBackground";
+import { companyLogos } from "./CompanyLogos";
 
 // Define the technology categories and items
 const technologies = [
@@ -30,7 +21,7 @@ const technologies = [
         name: "Twilio",
         description:
           "Deploy AI voice agents using Twilio's extensive telephony network",
-        logo: "https://cdn.brandfetch.io/idSMSsgKor/theme/dark/logo.svg?c=1dxbfHSJFAPEGdCLU4o5B",
+        logo: "twilio", // Changed to use our custom SVG
         benefits: [
           "One-click deployment to Twilio Studio",
           "Seamless call handling and forwarding",
@@ -41,7 +32,7 @@ const technologies = [
         name: "FreeSWITCH",
         description:
           "Open-source voice platform integration for complete customization",
-        logo: "https://cdn.brandfetch.io/idIZAsYHIa/theme/light/logo.svg?c=1dxbfHSJFAPEGdCLU4o5B",
+        logo: "freeswitch",
         benefits: [
           "Self-hosted voice solution",
           "Complete call flow customization",
@@ -61,7 +52,7 @@ const technologies = [
         name: "React",
         description:
           "Drop-in components for any React application with minimal configuration",
-        logo: "/logos/react.svg",
+        logo: "react",
         benefits: [
           "Styled and unstyled component options",
           "Redux integration helpers",
@@ -72,7 +63,7 @@ const technologies = [
         name: "Next.js",
         description:
           "Optimized integration with Next.js for server-side and static applications",
-        logo: "/logos/nextjs.svg",
+        logo: "nextjs",
         benefits: [
           "App Router and Pages Router support",
           "Server component compatibility",
@@ -83,7 +74,7 @@ const technologies = [
         name: "Other Frameworks",
         description:
           "Compatible with Angular, Vue, and other modern web frameworks",
-        logo: "/logos/frameworks.svg",
+        logo: "frameworks",
         benefits: [
           "Vanilla JavaScript library available",
           "TypeScript definitions included",
@@ -103,7 +94,7 @@ const technologies = [
         name: "SMS",
         description:
           "Text message integration for direct customer communication",
-        logo: "/logos/sms.svg",
+        logo: "sms",
         benefits: [
           "Two-way SMS conversations",
           "Automated appointment reminders",
@@ -114,7 +105,7 @@ const technologies = [
         name: "WhatsApp",
         description:
           "Connect with customers on the world's most popular messaging platform",
-        logo: "/logos/whatsapp.svg",
+        logo: "whatsapp",
         benefits: [
           "Rich media message support",
           "WhatsApp Business API integration",
@@ -124,7 +115,7 @@ const technologies = [
       {
         name: "Web Chat",
         description: "Embeddable chat widgets for your website or application",
-        logo: "/logos/webchat.svg",
+        logo: "webchat",
         benefits: [
           "Fully customizable chat UI",
           "Visitor tracking and analytics",
@@ -137,454 +128,274 @@ const technologies = [
 
 export const TechnologiesSection = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("telephony");
-  const [expandedItem, setExpandedItem] = useState<string | null>(null);
   const { theme, systemTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  // Handle theme
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  // Prevent hydration mismatch
   if (!mounted) return null;
 
-  // Determine current theme
   const currentTheme = theme === "system" ? systemTheme : theme;
   const isDark = currentTheme === "dark";
 
-  // Handle item expansion
-  const toggleItemExpansion = (itemName: string) => {
-    setExpandedItem(expandedItem === itemName ? null : itemName);
-  };
-
   return (
-    <section className="relative py-32 overflow-hidden">
-      <FuturisticBackground />
-      <div className="container mx-auto px-6 relative z-10">
+    <section className="bg-transparent py-32 px-4 relative overflow-hidden">
+      <TechnologicalBackground />
+      <div className="max-w-7xl mx-auto relative z-10">
         {/* Section Header */}
-        <div className="text-center mb-20">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="inline-block mb-5 px-5 py-2 rounded-full"
+        <motion.div className="text-center mb-20">
+          <motion.div className="flex items-center justify-center gap-2 mb-4">
+            <div
+              className="h-[1px] w-12"
+              style={{ backgroundColor: ThemeColors.accent }}
+            />
+            <Globe size={16} style={{ color: ThemeColors.accent }} />
+            <div
+              className="h-[1px] w-12"
+              style={{ backgroundColor: ThemeColors.accent }}
+            />
+          </motion.div>
+
+          <h2 className="text-5xl font-bold mb-6 tracking-tight">
+            Integration{" "}
+            <span style={{ color: ThemeColors.accent }}>Ecosystem</span>
+          </h2>
+          <p
+            className={`text-lg max-w-2xl mx-auto ${
+              isDark ? "text-gray-400" : "text-gray-600"
+            }`}
+          >
+            Connect your existing infrastructure with our comprehensive platform
+            support
+          </p>
+        </motion.div>
+
+        {/* Updated Category Selection Tabs */}
+        <div className="flex justify-center mb-16 relative">
+          <div
+            className="max-w-2xl w-full p-1.5 rounded-2xl relative"
             style={{
-              background: `${ThemeColors.accent}15`,
-              border: `1px solid ${ThemeColors.accent}30`,
+              background: isDark
+                ? "linear-gradient(to bottom, rgba(255,255,255,0.03), rgba(255,255,255,0.05))"
+                : "linear-gradient(to bottom, rgba(0,0,0,0.01), rgba(0,0,0,0.02))",
+              backdropFilter: "blur(8px)",
+              border: `1px solid ${
+                isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
+              }`,
             }}
           >
-            <span style={{ color: ThemeColors.accent }} className="font-medium">
-              Versatile Integration
-            </span>
-          </motion.div>
+            {/* Accent line decoration */}
+            <div
+              className="absolute h-[1px] top-0 left-1/4 right-1/4"
+              style={{
+                background: `linear-gradient(90deg, transparent, ${ThemeColors.accent}40, transparent)`,
+              }}
+            />
 
-          <motion.h2
-            className="text-5xl font-bold mb-6 tracking-tight text-text dark:text-white"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-          >
-            Supported{" "}
-            <span style={{ color: ThemeColors.accent }}>Technologies</span>
-          </motion.h2>
+            <div className="grid grid-cols-3 gap-2">
+              {technologies.map((category) => (
+                <motion.button
+                  key={category.id}
+                  onClick={() => setSelectedCategory(category.id)}
+                  className="relative py-3 px-4 rounded-xl flex flex-col items-center gap-2 group"
+                  style={{
+                    backgroundColor:
+                      selectedCategory === category.id
+                        ? `${ThemeColors.accent}08`
+                        : "transparent",
+                  }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  {selectedCategory === category.id && (
+                    <motion.div
+                      layoutId="activeCategoryBg"
+                      className="absolute inset-0 rounded-xl"
+                      style={{
+                        border: `1px solid ${ThemeColors.accent}40`,
+                        background: `linear-gradient(135deg, ${ThemeColors.accent}15, ${ThemeColors.accent}05)`,
+                      }}
+                      transition={{
+                        type: "spring",
+                        bounce: 0.2,
+                        duration: 0.6,
+                      }}
+                    />
+                  )}
+                  <span
+                    className="relative z-10 text-xl transition-colors duration-200"
+                    style={{
+                      color:
+                        selectedCategory === category.id
+                          ? ThemeColors.accent
+                          : isDark
+                          ? "rgba(255,255,255,0.5)"
+                          : "rgba(0,0,0,0.5)",
+                    }}
+                  >
+                    {category.icon}
+                  </span>
+                  <span
+                    className="relative z-10 text-sm font-medium transition-colors duration-200"
+                    style={{
+                      color:
+                        selectedCategory === category.id
+                          ? ThemeColors.accent
+                          : isDark
+                          ? "#fff"
+                          : "#000",
+                    }}
+                  >
+                    {category.title}
+                  </span>
 
-          <motion.p
-            className="text-xl text-gray-700 dark:text-gray-200 max-w-2xl mx-auto"
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6, delay: 0.1 }}
-          >
-            Integrate Conversate into your existing infrastructure with our wide
-            range of supported platforms and technologies
-          </motion.p>
+                  {/* Bottom accent line for active tab */}
+                  {selectedCategory === category.id && (
+                    <motion.div
+                      layoutId="activeIndicator"
+                      className="absolute bottom-0 left-1/4 right-1/4 h-[2px]"
+                      style={{
+                        background: `linear-gradient(90deg, transparent, ${ThemeColors.accent}, transparent)`,
+                      }}
+                      transition={{
+                        type: "spring",
+                        bounce: 0.2,
+                        duration: 0.6,
+                      }}
+                    />
+                  )}
+                </motion.button>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* Category Selection Tabs */}
-        <motion.div
-          className="flex flex-wrap justify-center gap-5 mb-16"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-        >
-          {technologies.map((category) => (
-            <motion.button
-              key={category.id}
-              className={`flex items-center gap-3 px-6 py-3.5 text-sm font-medium transition-all`}
-              style={{
-                clipPath:
-                  "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
-                backgroundColor:
-                  selectedCategory === category.id
-                    ? ThemeColors.accent
-                    : isDark
-                    ? "rgba(255,255,255,0.06)"
-                    : "rgba(0,0,0,0.04)",
-                border:
-                  selectedCategory === category.id
-                    ? "none"
-                    : isDark
-                    ? "1px solid rgba(255,255,255,0.15)"
-                    : "1px solid rgba(0,0,0,0.07)",
-                color:
-                  selectedCategory === category.id
-                    ? "#FFFFFF"
-                    : isDark
-                    ? "#FFFFFF"
-                    : "#111827",
-                boxShadow:
-                  selectedCategory === category.id
-                    ? `0 8px 16px -2px ${ThemeColors.accent}40`
-                    : "none",
-              }}
-              onClick={() => setSelectedCategory(category.id)}
-              whileHover={{
-                scale: 1.02,
-                backgroundColor:
-                  selectedCategory === category.id
-                    ? ThemeColors.accent
-                    : isDark
-                    ? "rgba(255,255,255,0.09)"
-                    : "rgba(0,0,0,0.06)",
-                boxShadow:
-                  selectedCategory === category.id
-                    ? `0 8px 20px -2px ${ThemeColors.accent}50`
-                    : `0 6px 12px -2px rgba(0,0,0,${isDark ? "0.2" : "0.08"})`,
-              }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <span className="w-5 h-5 flex items-center justify-center">
-                {category.icon}
-              </span>
-              <span>{category.title}</span>
-            </motion.button>
-          ))}
-        </motion.div>
+        {/* Technology Cards Grid - Refined */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+          {technologies
+            .find((cat) => cat.id === selectedCategory)
+            ?.items.map((item, index) => (
+              <motion.div
+                key={item.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                whileHover={{
+                  y: -5,
+                  transition: { duration: 0.2 },
+                }}
+                className="group relative"
+              >
+                <div
+                  className="relative p-6"
+                  style={{
+                    clipPath:
+                      "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                    backgroundColor: isDark
+                      ? "rgba(24, 24, 27, 0.8)"
+                      : "rgba(255, 255, 255, 0.9)",
+                    backdropFilter: "blur(16px)",
+                    border: `1px solid ${ThemeColors.accent}${
+                      isDark ? "33" : "20"
+                    }`,
+                  }}
+                >
+                  {/* Enhanced hover effect */}
+                  <motion.div
+                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    style={{
+                      background: `
+                        linear-gradient(135deg, 
+                          ${ThemeColors.accent}05 0%, 
+                          transparent 50%,
+                          ${ThemeColors.accent}05 100%
+                        )
+                      `,
+                      borderRadius: "inherit",
+                    }}
+                  />
 
-        {/* Selected Category Content */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            className="max-w-7xl mx-auto"
-            key={selectedCategory}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5 }}
-          >
-            {technologies.map(
-              (category) =>
-                category.id === selectedCategory && (
-                  <div
-                    key={category.id}
-                    className="grid grid-cols-1 lg:grid-cols-3 gap-10"
-                  >
-                    {/* Description Panel */}
-                    <motion.div
-                      className="lg:col-span-1"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.5 }}
+                  {/* Logo and Title Section */}
+                  <div className="relative z-10 flex items-start gap-4 mb-6 group-hover:transform group-hover:translate-y-[-2px] transition-transform duration-300">
+                    <div
+                      className="w-12 h-12 flex items-center justify-center rounded-lg transition-colors duration-300"
+                      style={{
+                        backgroundColor: `${ThemeColors.accent}15`,
+                        border: `1px solid ${ThemeColors.accent}20`,
+                      }}
                     >
-                      <div
-                        className="p-8 h-full"
-                        style={{
-                          clipPath:
-                            "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
-                          backgroundColor: isDark
-                            ? "rgba(32, 32, 36, 0.85)"
-                            : "rgba(255, 255, 255, 0.95)",
-                          backdropFilter: "blur(16px)",
-                          border: `1px solid ${ThemeColors.accent}${
-                            isDark ? "33" : "20"
-                          }`,
-                          boxShadow: `0 25px 25px -12px rgba(0,0,0,${
-                            isDark ? "0.25" : "0.1"
-                          })`,
-                        }}
+                      {companyLogos[item.logo as keyof typeof companyLogos] || (
+                        <span
+                          className="text-xl font-bold"
+                          style={{ color: ThemeColors.accent }}
+                        >
+                          {item.name.charAt(0)}
+                        </span>
+                      )}
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-bold mb-1 text-text dark:text-darkText">
+                        {item.name}
+                      </h3>
+                      <p className="text-sm text-secondaryText dark:text-darkSecondaryText">
+                        {item.description}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Divider */}
+                  <div
+                    className="h-px w-full mb-6"
+                    style={{
+                      background: `linear-gradient(90deg, ${ThemeColors.accent}20, transparent)`,
+                    }}
+                  />
+
+                  {/* Benefits List */}
+                  <div className="space-y-3">
+                    {item.benefits.map((benefit, idx) => (
+                      <motion.div
+                        key={idx}
+                        className="flex items-start gap-3"
+                        initial={{ opacity: 0, x: -10 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.1 * idx }}
                       >
                         <div
-                          className="p-4 rounded-lg w-16 h-16 flex items-center justify-center mb-6"
+                          className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300"
                           style={{
-                            backgroundColor: `${ThemeColors.accent}25`,
-                            color: ThemeColors.accent,
+                            backgroundColor: `${ThemeColors.accent}10`,
+                            border: `1px solid ${ThemeColors.accent}20`,
                           }}
                         >
-                          <div className="text-3xl">{category.icon}</div>
+                          <Check
+                            size={12}
+                            style={{ color: ThemeColors.accent }}
+                            strokeWidth={3}
+                          />
                         </div>
-
-                        <h3 className="text-3xl font-bold mb-5 text-gray-900 dark:text-white">
-                          {category.title}
-                        </h3>
-
-                        <p className="text-lg text-gray-700 dark:text-gray-200 mb-8">
-                          {category.description}
-                        </p>
-
-                        <div className="flex items-center gap-3 mb-4">
-                          <div
-                            className="p-1.5 rounded-lg flex items-center justify-center"
-                            style={{
-                              backgroundColor: `${ThemeColors.accent}15`,
-                            }}
-                          >
-                            <Code
-                              size={18}
-                              style={{ color: ThemeColors.accent }}
-                            />
-                          </div>
-                          <span className="text-gray-700 dark:text-gray-200">
-                            Easy integration with comprehensive documentation
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          <div
-                            className="p-1.5 rounded-lg flex items-center justify-center"
-                            style={{
-                              backgroundColor: `${ThemeColors.accent}15`,
-                            }}
-                          >
-                            <Server
-                              size={18}
-                              style={{ color: ThemeColors.accent }}
-                            />
-                          </div>
-                          <span className="text-gray-700 dark:text-gray-200">
-                            Full API access and developer support
-                          </span>
-                        </div>
-                      </div>
-                    </motion.div>
-
-                    {/* Technologies List */}
-                    <motion.div
-                      className="lg:col-span-2 flex flex-col gap-6"
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.5, delay: 0.2 }}
-                    >
-                      {category.items.map((item, index) => (
-                        <motion.div
-                          key={item.name}
-                          className="overflow-hidden"
-                          style={{
-                            clipPath:
-                              "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
-                            backgroundColor: isDark
-                              ? "rgba(32, 32, 36, 0.85)"
-                              : "rgba(255, 255, 255, 0.95)",
-                            backdropFilter: "blur(16px)",
-                            border: `1px solid ${ThemeColors.accent}${
-                              isDark ? "33" : "20"
-                            }`,
-                          }}
-                          initial={{ opacity: 0, y: 15 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.4, delay: 0.1 * index }}
-                          whileHover={{
-                            y: -5,
-                            boxShadow: `0 15px 30px -5px rgba(0, 0, 0, ${
-                              isDark ? "0.4" : "0.15"
-                            }), 0 0 20px ${ThemeColors.accent}${
-                              isDark ? "30" : "20"
-                            }`,
-                          }}
-                        >
-                          <div className="p-7 flex gap-5 items-center">
-                            {/* Logo Container */}
-                            <div
-                              className="w-16 h-16 shrink-0 flex items-center justify-center rounded-lg"
-                              style={{
-                                backgroundColor: isDark
-                                  ? "rgba(255,255,255,0.08)"
-                                  : "rgba(0,0,0,0.05)",
-                                border: `1px solid ${
-                                  isDark
-                                    ? "rgba(255,255,255,0.15)"
-                                    : "rgba(0,0,0,0.07)"
-                                }`,
-                              }}
-                            >
-                              <span
-                                className="text-2xl font-bold"
-                                style={{ color: ThemeColors.accent }}
-                              >
-                                {item.name.charAt(0)}
-                              </span>
-                            </div>
-
-                            {/* Content */}
-                            <div className="flex-grow">
-                              <div className="flex items-center justify-between">
-                                <h4 className="font-bold text-xl text-gray-900 dark:text-white">
-                                  {item.name}
-                                </h4>
-
-                                <motion.button
-                                  style={{ color: ThemeColors.accent }}
-                                  className="flex items-center gap-1.5 text-sm font-medium bg-accent/10 hover:bg-accent/15 px-3 py-1.5 rounded-md transition-colors"
-                                  onClick={() => toggleItemExpansion(item.name)}
-                                  whileHover={{ scale: 1.02 }}
-                                  whileTap={{ scale: 0.98 }}
-                                  aria-expanded={expandedItem === item.name}
-                                  aria-controls={`${item.name.toLowerCase()}-details`}
-                                >
-                                  <span>
-                                    {expandedItem === item.name
-                                      ? "Hide details"
-                                      : "Show details"}
-                                  </span>
-                                  {expandedItem === item.name ? (
-                                    <ChevronUp
-                                      size={14}
-                                      style={{ color: ThemeColors.accent }}
-                                    />
-                                  ) : (
-                                    <ChevronDown
-                                      size={14}
-                                      style={{ color: ThemeColors.accent }}
-                                    />
-                                  )}
-                                </motion.button>
-                              </div>
-
-                              <p className="text-gray-700 dark:text-gray-200 mt-2">
-                                {item.description}
-                              </p>
-                            </div>
-                          </div>
-
-                          {/* Expandable Benefits Section */}
-                          <AnimatePresence>
-                            {expandedItem === item.name && item.benefits && (
-                              <motion.div
-                                id={`${item.name.toLowerCase()}-details`}
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: "auto", opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{
-                                  duration: 0.3,
-                                  ease: "easeInOut",
-                                }}
-                              >
-                                <div className="px-7 pb-7 pt-2">
-                                  <div
-                                    className="w-full h-px mb-5"
-                                    style={{
-                                      background: `linear-gradient(90deg, ${ThemeColors.accent}30, transparent)`,
-                                    }}
-                                  />
-                                  <h5 className="text-sm font-semibold mb-4 flex items-center gap-2 text-gray-800 dark:text-gray-100">
-                                    <span
-                                      className="w-4 h-4 rounded-full flex items-center justify-center"
-                                      style={{
-                                        backgroundColor: `${ThemeColors.accent}20`,
-                                      }}
-                                    >
-                                      <Check
-                                        size={10}
-                                        style={{ color: ThemeColors.accent }}
-                                        strokeWidth={3}
-                                      />
-                                    </span>
-                                    <span>KEY BENEFITS</span>
-                                  </h5>
-
-                                  <ul className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                    {item.benefits.map((benefit, idx) => (
-                                      <motion.li
-                                        key={idx}
-                                        className="flex items-center gap-2"
-                                        initial={{ opacity: 0, x: -5 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        transition={{ delay: idx * 0.1 }}
-                                      >
-                                        <Check
-                                          size={14}
-                                          style={{ color: ThemeColors.accent }}
-                                          className="shrink-0"
-                                          strokeWidth={2.5}
-                                        />
-                                        <span className="text-sm text-gray-700 dark:text-gray-200">
-                                          {benefit}
-                                        </span>
-                                      </motion.li>
-                                    ))}
-                                  </ul>
-
-                                  <motion.a
-                                    href={`/docs/integrations/${item.name.toLowerCase()}`}
-                                    className="inline-flex items-center gap-2 text-sm font-semibold mt-6 px-4 py-2"
-                                    style={{
-                                      clipPath:
-                                        "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))",
-                                      backgroundColor: `${ThemeColors.accent}15`,
-                                      color: ThemeColors.accent,
-                                    }}
-                                    whileHover={{
-                                      scale: 1.03,
-                                      backgroundColor: `${ThemeColors.accent}25`,
-                                    }}
-                                    whileTap={{ scale: 0.98 }}
-                                  >
-                                    <span>View Documentation</span>
-                                    <ExternalLink size={14} />
-                                  </motion.a>
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </motion.div>
-                      ))}
-                    </motion.div>
+                        <span className="text-sm text-secondaryText dark:text-darkSecondaryText">
+                          {benefit}
+                        </span>
+                      </motion.div>
+                    ))}
                   </div>
-                )
-            )}
-          </motion.div>
-        </AnimatePresence>
+                </div>
 
-        {/* Additional Info with more space */}
-        <motion.div
-          className="mt-24 text-center"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <div className="max-w-2xl mx-auto">
-            <h4 className="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
-              Need a Custom Integration?
-            </h4>
-            <p className="text-gray-700 dark:text-gray-200 mb-8">
-              Can&apos;t find your technology of choice? Our team can help with
-              custom integrations tailored to your specific infrastructure
-              requirements.
-            </p>
-            <motion.a
-              href="/contact"
-              className="inline-flex items-center gap-2 text-sm font-semibold px-8 py-4"
-              style={{
-                clipPath:
-                  "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
-                backgroundColor: ThemeColors.accent,
-                color: "white",
-                boxShadow: `0 8px 16px -2px ${ThemeColors.accent}40`,
-              }}
-              whileHover={{
-                scale: 1.02,
-                boxShadow: `0 12px 20px -2px ${ThemeColors.accent}60`,
-              }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <span>Contact for Custom Integration</span>
-              <ExternalLink size={14} />
-            </motion.a>
-          </div>
-        </motion.div>
+                {/* Background glow effect */}
+                <div
+                  className="absolute inset-0 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl"
+                  style={{
+                    background: `radial-gradient(circle at 50% 50%, ${ThemeColors.accent}15, transparent 70%)`,
+                  }}
+                />
+              </motion.div>
+            ))}
+        </div>
       </div>
     </section>
   );

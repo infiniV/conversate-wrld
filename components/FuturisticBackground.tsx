@@ -46,7 +46,7 @@ export const FuturisticBackground = () => {
       ))}
 
       {/* Animated lines */}
-      <svg
+      {/* <svg
         className="absolute w-full h-full opacity-[0.15]"
         style={{
           stroke: ThemeColors.accent,
@@ -80,7 +80,7 @@ export const FuturisticBackground = () => {
             }}
           />
         ))}
-      </svg>
+      </svg> */}
     </div>
   );
 };
