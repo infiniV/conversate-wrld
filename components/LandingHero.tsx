@@ -451,7 +451,7 @@ export const LandingHero = () => {
               <OrbComponentlazy
                 color={getOrbColor()}
                 hoverColor={ThemeColors.secondaryAccents.cyan}
-                grainCount={voiceChatActive ? 4200 : 3800}
+                grainCount={1950}
                 radius={orbRadius.get()}
                 grainSize={0.0065 + audioActivityLevel * 0.01} // Adjusted grain size for better visuals
                 vertexColors={false}
