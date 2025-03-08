@@ -1,48 +1,22 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useTheme } from "next-themes";
-import { ThemeColors } from "./ThemeConstants";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { ThemeColors } from "./ThemeConstants";
+import { useTheme } from "next-themes";
 
-const companies = [
+const partners = [
   { name: "DCCS", logo: "/logos/ccs-logo.png" },
   { name: "4xPILLARS", logo: "/logos/4xpillar.png" },
   { name: "FARMOVATION", logo: "/logos/farmovation.png" },
-];
-
-// Polygon background shapes
-const polygons = [
-  "polygon(50% 0%, 100% 38%, 82% 100%, 18% 100%, 0% 38%)",
-  "polygon(25% 0%, 100% 0%, 75% 100%, 0% 100%)",
-  "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
-  "polygon(0% 0%, 100% 0%, 100% 75%, 50% 100%, 0% 75%)",
+  { name: "FARM", logo: "/logos/farmovation.png" },
+  { name: "4x", logo: "/logos/4xpillar.png" },
 ];
 
 export const TrustedCompanies = () => {
-  const { theme, systemTheme } = useTheme();
-  const currentTheme = theme === "system" ? systemTheme : theme;
-  const isDark = currentTheme === "dark";
   const [isMounted, setIsMounted] = useState(false);
-  const [currentPage, setCurrentPage] = useState(0);
-
-  const totalPages = Math.ceil(companies.length / 3);
-  const displayedCompanies = companies.slice(
-    currentPage * 3,
-    (currentPage + 1) * 3
-  );
-
-  // Auto-pagination effect
-  useEffect(() => {
-    if (!isMounted) return;
-
-    const interval = setInterval(() => {
-      setCurrentPage((prev) => (prev + 1) % totalPages);
-    }, 5000);
-
-    return () => clearInterval(interval);
-  }, [isMounted, totalPages]);
+  const { theme, systemTheme } = useTheme();
 
   useEffect(() => {
     setIsMounted(true);
@@ -50,201 +24,139 @@ export const TrustedCompanies = () => {
 
   if (!isMounted) return null;
 
-  return (
-    <section className="py-4 overflow-hidden relative">
-      {/* Polygonal background */}
-      <div className="absolute inset-0 -z-10 overflow-hidden">
-        {Array.from({ length: 8 }).map((_, index) => {
-          const size = 20 + Math.random() * 60;
-          const shape = polygons[index % polygons.length];
-          const left = Math.random() * 100;
-          const top = Math.random() * 100;
-          const rotation = Math.random() * 360;
+  // Determine current theme
+  const currentTheme = theme === "system" ? systemTheme : theme;
+  const isDark = currentTheme === "dark";
 
-          return (
-            <div
-              key={`polygon-${index}`}
-              className="absolute"
-              style={{
-                width: `${size}px`,
-                height: `${size}px`,
-                left: `${left}%`,
-                top: `${top}%`,
-                transform: `rotate(${rotation}deg)`,
-                clipPath: shape,
-                background: isDark
-                  ? `rgba(255, 61, 113, ${0.01 + Math.random() * 0.04})`
-                  : `rgba(255, 61, 113, ${0.005 + Math.random() * 0.02})`,
-                opacity: 0.3 + Math.random() * 0.4,
-                zIndex: -1,
-              }}
-            />
-          );
-        })}
+  return (
+    <section
+      className="relative overflow-hidden border-t border-b border-opacity-5"
+      style={{
+        backgroundColor: isDark
+          ? "rgba(9, 9, 11, 0.8)"
+          : "rgba(250, 250, 250, 0.7)",
+        borderColor: isDark
+          ? "rgba(255, 255, 255, 0.06)"
+          : "rgba(0, 0, 0, 0.03)",
+      }}
+    >
+      {/* Subtle grid background */}
+      <div className="absolute inset-0 z-0">
+        {/* <<div
+          className="absolute inset-0"
+          style={{
+            backgroundImage: `linear-gradient(${
+              isDark ? "rgba(255,255,255,0.01)" : "rgba(0,0,0,0.008)"
+            } 1px, transparent 1px), 
+              linear-gradient(90deg, ${
+                isDark ? "rgba(255,255,255,0.01)" : "rgba(0,0,0,0.008)"
+              } 1px, transparent 1px)`,
+            backgroundSize: "24px 24px",
+            opacity: 0.7,
+          }}
+        /> */}
+        {/* Accent line */}
+        <motion.div
+          className="absolute h-[1px] w-full bottom-0"
+          style={{
+            background: `linear-gradient(90deg, transparent, ${ThemeColors.accent}20, transparent)`,
+          }}
+          animate={{ left: ["-100%", "100%"] }}
+          transition={{ duration: 7, repeat: Infinity, ease: "linear" }}
+        />
       </div>
 
-      {/* Light gradient overlay */}
-      <div
-        className="absolute inset-0 -z-10"
-        style={{
-          background: isDark
-            ? "linear-gradient(90deg, rgba(9,9,11,0.5) 0%, rgba(9,9,11,0) 50%, rgba(9,9,11,0.5) 100%)"
-            : "linear-gradient(90deg, rgba(250,250,250,0.7) 0%, rgba(250,250,250,0) 50%, rgba(250,250,250,0.7) 100%)",
-        }}
-      />
-
-      {/* Accent lines */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#FF3D71] to-transparent opacity-20" />
-      <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-[#FF3D71] to-transparent opacity-30" />
-
-      {/* Content */}
-      <div className="max-w-7xl mx-auto px-4 relative">
-        <div className="flex items-center justify-between">
-          {/* Left side - Title with enhanced styling */}
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="relative">
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: [0, 1, 0.5, 1] }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  repeatType: "reverse",
-                }}
-                className="w-2 h-2 rounded-full"
-                style={{
-                  backgroundColor: ThemeColors.accent,
-                  boxShadow: `0 0 8px ${ThemeColors.accent}80`,
-                }}
+      <div className="container mx-auto px-6 relative z-10">
+        <div className="py-8 md:py-10">
+          {/* Elegant title - subtly different from previous design */}
+          <motion.div
+            className="mb-8 md:mb-10 max-w-md mx-auto text-center"
+            initial={{ opacity: 0, y: 10 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <div
+                className="h-[1px] w-8 opacity-40"
+                style={{ backgroundColor: ThemeColors.accent }}
               />
-              <motion.div
-                initial={{ opacity: 0, scale: 1 }}
-                animate={{ opacity: [0, 0.5, 0], scale: [1, 2] }}
-                transition={{
-                  duration: 2,
-                  repeat: Infinity,
-                  repeatType: "loop",
-                }}
-                className="absolute inset-0 rounded-full"
-                style={{
-                  backgroundColor: `${ThemeColors.accent}20`,
-                }}
+              <h3
+                className={`text-xs font-medium tracking-wider ${
+                  isDark ? "text-gray-300" : "text-gray-700"
+                }`}
+              >
+                TRUSTED PARTNERSHIPS
+              </h3>
+              <div
+                className="h-[1px] w-8 opacity-40"
+                style={{ backgroundColor: ThemeColors.accent }}
               />
             </div>
 
-            <div>
-              <motion.p
-                className={`text-xs font-bold tracking-wider ${
-                  isDark ? "text-gray-300" : "text-gray-600"
-                }`}
+            <p
+              className={`text-sm ${
+                isDark ? "text-gray-400" : "text-gray-600"
+              }`}
+            >
+              Powering innovative customer experiences across industries
+            </p>
+          </motion.div>
+
+          {/* Refined logo display */}
+          <div className="flex flex-wrap justify-center gap-x-12 gap-y-8 items-center">
+            {partners.map((partner, index) => (
+              <motion.div
+                key={partner.name}
+                className="group"
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
-                style={{
-                  letterSpacing: "0.05em",
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{
+                  duration: 0.4,
+                  delay: index * 0.1,
+                  ease: [0.25, 0.1, 0.25, 1],
                 }}
               >
-                <span style={{ color: ThemeColors.accent }}>TRUSTED</span> BY
-              </motion.p>
-            </div>
-          </div>
+                <div className="relative h-6 md:h-8 w-28 md:w-32">
+                  <Image
+                    src={partner.logo}
+                    alt={partner.name}
+                    fill
+                    className="object-contain filter grayscale hover:grayscale-0 
+                      opacity-75 hover:opacity-100 transition-all duration-300"
+                    sizes="(max-width: 768px) 40vw, 150px"
+                  />
+                </div>
 
-          {/* Right side - Companies with refined cards */}
-          <div className="flex-1 flex items-center justify-end">
-            <motion.div
-              className="flex items-center gap-6"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              key={currentPage}
-              transition={{
-                duration: 0.8,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-            >
-              {displayedCompanies.map((company, index) => (
+                {/* Subtle hover indicator */}
                 <motion.div
-                  key={`company-${currentPage}-${index}`}
-                  className="flex items-center"
-                  initial={{ opacity: 0, y: 5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.15, duration: 0.5 }}
-                  whileHover={{
-                    y: -2,
-                    transition: { duration: 0.2 },
+                  className="h-[1px] w-full mt-1.5 opacity-0 group-hover:opacity-100"
+                  initial={{ scaleX: 0 }}
+                  whileHover={{ scaleX: 1 }}
+                  transition={{ duration: 0.3 }}
+                  style={{
+                    background: ThemeColors.accent,
+                    transformOrigin: "left",
                   }}
-                  whileTap={{ scale: 0.97 }}
-                >
-                  <div
-                    className="flex items-center gap-2.5 px-3.5 py-1.5 transition-all duration-200"
-                    style={{
-                      clipPath:
-                        "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
-                      backgroundColor: isDark
-                        ? "rgba(24, 24, 27, 0.7)"
-                        : "rgba(255, 255, 255, 0.7)",
-                      border: `1px solid ${
-                        isDark
-                          ? "rgba(255, 255, 255, 0.1)"
-                          : "rgba(0, 0, 0, 0.05)"
-                      }`,
-                      backdropFilter: "blur(8px)",
-                    }}
-                  >
-                    {/* Company logo */}
-                    <div
-                      className="relative h-5 w-5 flex items-center justify-center"
-                      style={{
-                        clipPath:
-                          "polygon(0 0, calc(100% - 3px) 0, 100% 3px, 100% 100%, 3px 100%, 0 calc(100% - 3px))",
-                        backgroundColor: isDark
-                          ? "rgba(15, 15, 18, 0.8)"
-                          : "rgba(245, 245, 247, 0.8)",
-                        padding: "3px",
-                        border: `1px solid ${
-                          isDark
-                            ? "rgba(255, 255, 255, 0.06)"
-                            : "rgba(0, 0, 0, 0.03)"
-                        }`,
-                      }}
-                    >
-                      <Image
-                        src={company.logo}
-                        alt={company.name}
-                        fill
-                        sizes="20px"
-                        className={`object-contain p-0.5 ${
-                          isDark ? "brightness-110" : ""
-                        }`}
-                      />
-                    </div>
-
-                    {/* Company name */}
-                    <span
-                      className={`text-xs font-medium tracking-wide ${
-                        isDark ? "text-gray-200" : "text-gray-700"
-                      }`}
-                    >
-                      {company.name}
-                    </span>
-
-                    {/* Bottom highlight line - only visible on hover */}
-                    <motion.div
-                      className="absolute bottom-0 left-0 right-0 h-[1px]"
-                      initial={{ scaleX: 0 }}
-                      whileHover={{ scaleX: 1 }}
-                      transition={{ duration: 0.3 }}
-                      style={{
-                        backgroundColor: ThemeColors.accent,
-                        transformOrigin: "left",
-                        opacity: 0.7,
-                      }}
-                    />
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
+                />
+              </motion.div>
+            ))}
           </div>
+
+          {/* Subtle end decoration */}
+          <motion.div
+            className="mt-8 flex justify-center"
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 0.4 }}
+            viewport={{ once: true }}
+            transition={{ delay: 0.5 }}
+          >
+            <div
+              className="w-1.5 h-1.5 rounded-full"
+              style={{ backgroundColor: ThemeColors.accent }}
+            />
+          </motion.div>
         </div>
       </div>
     </section>

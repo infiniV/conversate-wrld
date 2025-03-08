@@ -28,6 +28,15 @@ const PricingSection = dynamic(
   { ssr: false }
 );
 
+// Import the new TechnologiesSection component
+const TechnologiesSection = dynamic(
+  () =>
+    import("../components/TechnologiesSection").then(
+      (mod) => mod.TechnologiesSection
+    ),
+  { ssr: false }
+);
+
 const TrustedCompanies = dynamic(
   () =>
     import("../components/TrustedCompanies").then(
@@ -67,9 +76,10 @@ export default function Home() {
                   ease: [0.22, 1, 0.36, 1],
                 }}
               >
-                <TrustedCompanies />
                 <FeaturesSection />
                 <PricingSection />
+                <TechnologiesSection /> {/* Add the new section here */}
+                <TrustedCompanies />
               </motion.div>
             </Suspense>
           </motion.div>

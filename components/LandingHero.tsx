@@ -428,8 +428,8 @@ export const LandingHero = () => {
         } transition-colors`}
       style={{ transition: ThemeTransitions.default }}
     >
-      {/* Central Orb - Modified for smoother initial render */}
-      <div className="absolute inset-0 flex items-center justify-center z-10">
+      {/* Central Orb - Lower z-index to ensure it stays below content */}
+      <div className="absolute inset-0 flex items-center justify-center z-[1]">
         <div
           className={`w-[100vw] h-[100vh] absolute opacity-90 transition-opacity duration-1000 ${
             mounted ? "opacity-90" : "opacity-0"
@@ -480,31 +480,20 @@ export const LandingHero = () => {
         </div>
       </div>
 
-      {/* Content Overlay with enhanced animations */}
+      {/* Content Overlay with enhanced animations - Lowered z-index to stay below navbar */}
       <AnimatePresence mode="wait">
         {!voiceChatActive && (
           <motion.div
-            className="relative z-20 top-1/5 w-full h-full flex items-center justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            className="absolute bottom-0 left-0 right-0 z-[10] pb-8 md:pb-12 w-full flex items-end justify-center"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="container mx-auto px-6">
+            <div className="container mx-auto px-4 sm:px-6">
               <div className="max-w-3xl mx-auto text-center">
-                {/* <motion.div
-                  className={`inline-block mb-3 px-4 py-1.5 ${styles.tagBackground} ${styles.tagBorder} backdrop-blur-sm border rounded-md`}
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: loaded ? 1 : 0, y: loaded ? 0 : -20 }}
-                  transition={{ duration: 0.5, delay: 0.8 }}
-                >
-                  <span className="text-xs font-semibold tracking-widest text-[#FF3D71] uppercase">
-                    Redefining Communication
-                  </span>
-                </motion.div> */}
-
                 <motion.h1
-                  className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4"
+                  className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: loaded ? 1 : 0 }}
                   transition={{ duration: 1, delay: 0.5 }}
@@ -569,7 +558,7 @@ export const LandingHero = () => {
 
                 {/* Centered features */}
                 <motion.div
-                  className="mt-8 flex flex-wrap items-center justify-center gap-8"
+                  className="mt-6 flex flex-wrap items-center justify-center gap-6 md:gap-8"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: loaded ? (isDark ? 0.9 : 0.85) : 0 }}
                   transition={{ delay: 1, duration: 1 }}
@@ -604,11 +593,11 @@ export const LandingHero = () => {
         )}
       </AnimatePresence>
 
-      {/* Voice Chat Integration with enhanced transitions */}
+      {/* Voice Chat Integration - Lowered z-index to stay below navbar but above orb */}
       <AnimatePresence>
         {voiceChatActive && (
           <motion.div
-            className="relative z-30 w-full h-full"
+            className="relative z-[10] w-full h-full pt-24"
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.96 }}

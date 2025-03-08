@@ -181,7 +181,27 @@ const NavBackground = () => {
   return (
     <div className="absolute inset-0 z-0 overflow-hidden">
       {/* Theme-aware background with minimal blur */}
-      <div className="absolute inset-0 bg-white/5 dark:bg-black/50 backdrop-blur-sm" />
+      <div className="absolute inset-0 bg-white/5 dark:bg-black/70 backdrop-blur-sm" />
+
+      {/* Radial blur effect */}
+      <div className="absolute inset-0 pointer-events-none">
+        <motion.div
+          className="absolute top-[-50%] left-1/2 transform -translate-x-1/2 w-[200%] aspect-square"
+          style={{
+            background: `radial-gradient(circle, rgba(255,61,113,0.03) 0%, transparent 70%)`,
+            filter: "blur(50px)",
+          }}
+          animate={{
+            scale: [1, 1.05, 1],
+            opacity: [0.5, 0.7, 0.5],
+          }}
+          transition={{
+            repeat: Infinity,
+            duration: 8,
+            ease: "easeInOut",
+          }}
+        />
+      </div>
 
       {/* Simplified grid pattern */}
       <div
@@ -244,7 +264,7 @@ export function NavigationBar() {
 
   return (
     <motion.header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all ${
+      className={`fixed top-0 left-0 right-0 z-[100] transition-all ${
         scrolled ? "py-2" : "py-3"
       }`}
       style={{
@@ -334,7 +354,7 @@ export function NavigationBar() {
           </div>
         </div>
 
-        {/* Mobile Menu - Simplified */}
+        {/* Mobile Menu - Updated with light/dark support */}
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
@@ -343,17 +363,31 @@ export function NavigationBar() {
                 clipPath:
                   "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
                 backdropFilter: "blur(12px)",
-                background: "rgba(0,0,0,0.7)",
-                border: `1px solid ${ThemeColors.accent}20`,
-                boxShadow:
-                  "0 8px 16px -4px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.05)",
+                background: "rgba(255,255,255,0.85) dark:rgba(0,0,0,0.75)",
+                border: `1px solid ${ThemeColors.accent}15`,
+                boxShadow: `0 8px 16px -4px rgba(0,0,0,0.1), 
+                  inset 0 0 0 1px rgba(255,255,255,0.05)`,
               }}
               initial={{ opacity: 0, height: 0, y: -10 }}
               animate={{ opacity: 1, height: "auto", y: 0 }}
               exit={{ opacity: 0, height: 0, y: -10 }}
               transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
             >
-              <div className="p-2">
+              {/* Ambient background effects */}
+              <div className="absolute inset-0 z-0">
+                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/5 dark:to-black/5" />
+                <div
+                  className="absolute inset-0"
+                  style={{
+                    backgroundImage: `linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.01) 1px, transparent 1px)`,
+                    backgroundSize: "16px 16px",
+                    opacity: 0.5,
+                  }}
+                />
+              </div>
+
+              <div className="p-2 relative z-10">
                 <ul className="flex flex-col space-y-1">
                   {navItems.map((item, index) => (
                     <li key={item.href} className="w-full">
@@ -369,7 +403,9 @@ export function NavigationBar() {
                   <li className="pt-2 mt-1">
                     <div
                       className="h-[1px] w-full mb-2"
-                      style={{ backgroundColor: `${ThemeColors.accent}20` }}
+                      style={{
+                        background: `linear-gradient(90deg, transparent, ${ThemeColors.accent}15, transparent)`,
+                      }}
                     />
                     <Link href="/get-started" className="w-full block">
                       <motion.div
@@ -378,21 +414,50 @@ export function NavigationBar() {
                           clipPath:
                             "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))",
                           backgroundColor: ThemeColors.accent,
-                          boxShadow:
-                            "0 0 15px rgba(255,61,113,0.2), inset 0 1px 0 rgba(255,255,255,0.1)",
+                          boxShadow: `0 0 15px ${ThemeColors.accent}33,
+                            inset 0 1px 0 rgba(255,255,255,0.1)`,
                         }}
                         whileHover={{ scale: 1.01, y: -1 }}
                         whileTap={{ scale: 0.99, y: 1 }}
                       >
-                        <span className="text-xs font-semibold tracking-widest">
+                        <motion.span
+                          className="text-xs font-semibold tracking-widest"
+                          initial={{ x: -5, opacity: 0 }}
+                          animate={{ x: 0, opacity: 1 }}
+                          transition={{ delay: 0.1 }}
+                        >
                           GET STARTED
-                        </span>
-                        <ArrowRight size={12} />
+                        </motion.span>
+                        <motion.div
+                          initial={{ x: -3, opacity: 0 }}
+                          animate={{ x: 0, opacity: 1 }}
+                          transition={{ delay: 0.2 }}
+                        >
+                          <ArrowRight size={12} />
+                        </motion.div>
                       </motion.div>
                     </Link>
                   </li>
                 </ul>
               </div>
+
+              {/* Glow effect */}
+              <motion.div
+                className="absolute bottom-0 right-0 w-32 h-32 z-0"
+                style={{
+                  background: `radial-gradient(circle, ${ThemeColors.accent}10 0%, transparent 70%)`,
+                  filter: "blur(20px)",
+                }}
+                animate={{
+                  opacity: [0.3, 0.5, 0.3],
+                  scale: [0.9, 1.1, 0.9],
+                }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: "easeInOut",
+                }}
+              />
             </motion.div>
           )}
         </AnimatePresence>
