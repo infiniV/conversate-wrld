@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { ThemeColors } from "./ThemeConstants";
+import { NavigationBarBackground } from "./NavigationBarBackground";
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -177,42 +178,15 @@ const LogoSection = () => {
   );
 };
 
+// Replace the existing NavBackground with our new component
 const NavBackground = () => {
   return (
     <div className="absolute inset-0 z-0 overflow-hidden">
       {/* Theme-aware background with minimal blur */}
       <div className="absolute inset-0 bg-white/5 dark:bg-black/70 backdrop-blur-sm" />
 
-      {/* Radial blur effect */}
-      <div className="absolute inset-0 pointer-events-none">
-        <motion.div
-          className="absolute top-[-50%] left-1/2 transform -translate-x-1/2 w-[200%] aspect-square"
-          style={{
-            background: `radial-gradient(circle, rgba(255,61,113,0.03) 0%, transparent 70%)`,
-            filter: "blur(50px)",
-          }}
-          animate={{
-            scale: [1, 1.05, 1],
-            opacity: [0.5, 0.7, 0.5],
-          }}
-          transition={{
-            repeat: Infinity,
-            duration: 8,
-            ease: "easeInOut",
-          }}
-        />
-      </div>
-
-      {/* Simplified grid pattern */}
-      <div
-        className="absolute inset-0"
-        style={{
-          backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px), 
-          linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px)`,
-          backgroundSize: "20px 20px",
-          opacity: 0.4,
-        }}
-      />
+      {/* New polygon background */}
+      <NavigationBarBackground />
 
       {/* Minimal accent line */}
       <div className="absolute inset-0">

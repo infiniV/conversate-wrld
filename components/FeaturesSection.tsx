@@ -141,7 +141,7 @@ export const FeaturesSection = () => {
   return (
     <section className="min-h-screen flex items-center bg-gradient-to-b from-background to-subtleUI dark:from-darkBackground dark:to-darkSubtleUI relative">
       <FuturisticBackground />
-      <div className="container mx-auto px-4 py-16 relative z-10">
+      <div className="container mx-auto px-4 py-16 relative z-10" id="features">
         <div className="text-center mb-16">
           <motion.div
             initial={{ opacity: 0 }}
