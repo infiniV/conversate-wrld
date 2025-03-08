@@ -44,7 +44,10 @@ const TrustedCompanies = dynamic(
     ),
   { ssr: false }
 );
-
+const FooterSection = dynamic(
+  () => import("../components/FooterSection").then((mod) => mod.FooterSection),
+  { ssr: false }
+);
 export default function Home() {
   const [contentMounted, setContentMounted] = useState(false);
 
@@ -80,6 +83,7 @@ export default function Home() {
                 <PricingSection />
                 <TechnologiesSection /> {/* Add the new section here */}
                 <TrustedCompanies />
+                <FooterSection />
               </motion.div>
             </Suspense>
           </motion.div>
