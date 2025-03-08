@@ -451,17 +451,17 @@ export const LandingHero = () => {
               <OrbComponentlazy
                 color={getOrbColor()}
                 hoverColor={ThemeColors.secondaryAccents.cyan}
-                grainCount={voiceChatActive ? 1400 : 1200}
+                grainCount={voiceChatActive ? 4200 : 3800}
                 radius={orbRadius.get()}
-                grainSize={0.0075 + audioActivityLevel * 0.012}
+                grainSize={0.0065 + audioActivityLevel * 0.01} // Adjusted grain size for better visuals
                 vertexColors={false}
                 rotationSpeed={orbInteractivity.rotationSpeed}
                 pulsateSpeed={orbInteractivity.pulsateSpeed}
                 noiseStrength={orbInteractivity.noiseStrength}
                 pulsateStrength={
                   isDark
-                    ? 0.03 + audioActivityLevel * 0.06
-                    : 0.025 + audioActivityLevel * 0.05
+                    ? 0.035 + audioActivityLevel * 0.065
+                    : 0.03 + audioActivityLevel * 0.055
                 }
                 distortionStrength={orbInteractivity.distortionStrength}
                 voiceMode={voiceChatActive}
