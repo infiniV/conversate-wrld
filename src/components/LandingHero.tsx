@@ -491,7 +491,7 @@ export const LandingHero = () => {
           >
             <div className="container mx-auto px-4 sm:px-6">
               <div className="mx-auto max-w-3xl text-center">
-                <motion.h1
+                <motion.h2
                   className="mb-4 text-3xl font-bold leading-tight sm:text-4xl md:text-5xl lg:text-6xl"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: loaded ? 1 : 0 }}
@@ -499,7 +499,7 @@ export const LandingHero = () => {
                 >
                   The Future of{" "}
                   <span className="text-[#FF3D71]">Customer Care</span>
-                </motion.h1>
+                </motion.h2>
 
                 {/* Centered buttons */}
                 <div className="flex flex-col justify-center gap-4 sm:flex-row">
