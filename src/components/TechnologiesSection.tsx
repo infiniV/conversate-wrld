@@ -141,12 +141,12 @@ export const TechnologiesSection = () => {
   const isDark = currentTheme === "dark";
 
   return (
-    <section className="bg-transparent py-32 px-4 relative overflow-hidden">
+    <section className="relative overflow-hidden bg-transparent px-4 py-32">
       <TechnologicalBackground />
-      <div className="max-w-7xl mx-auto relative z-10">
+      <div className="relative z-10 mx-auto max-w-7xl">
         {/* Section Header */}
-        <motion.div className="text-center mb-20">
-          <motion.div className="flex items-center justify-center gap-2 mb-4">
+        <motion.div className="mb-20 text-center">
+          <motion.div className="mb-4 flex items-center justify-center gap-2">
             <div
               className="h-[1px] w-12"
               style={{ backgroundColor: ThemeColors.accent }}
@@ -158,12 +158,12 @@ export const TechnologiesSection = () => {
             />
           </motion.div>
 
-          <h2 className="text-5xl font-bold mb-6 tracking-tight">
+          <h2 className="mb-6 text-5xl font-bold tracking-tight">
             Integration{" "}
             <span style={{ color: ThemeColors.accent }}>Ecosystem</span>
           </h2>
           <p
-            className={`text-lg max-w-2xl mx-auto ${
+            className={`mx-auto max-w-2xl text-lg ${
               isDark ? "text-gray-400" : "text-gray-600"
             }`}
           >
@@ -173,9 +173,9 @@ export const TechnologiesSection = () => {
         </motion.div>
 
         {/* Updated Category Selection Tabs */}
-        <div className="flex justify-center mb-16 relative">
+        <div className="relative mb-16 flex justify-center">
           <div
-            className="max-w-2xl w-full p-1.5 rounded-2xl relative"
+            className="relative w-full max-w-2xl rounded-2xl p-1.5"
             style={{
               background: isDark
                 ? "linear-gradient(to bottom, rgba(255,255,255,0.03), rgba(255,255,255,0.05))"
@@ -188,7 +188,7 @@ export const TechnologiesSection = () => {
           >
             {/* Accent line decoration */}
             <div
-              className="absolute h-[1px] top-0 left-1/4 right-1/4"
+              className="absolute left-1/4 right-1/4 top-0 h-[1px]"
               style={{
                 background: `linear-gradient(90deg, transparent, ${ThemeColors.accent}40, transparent)`,
               }}
@@ -199,7 +199,7 @@ export const TechnologiesSection = () => {
                 <motion.button
                   key={category.id}
                   onClick={() => setSelectedCategory(category.id)}
-                  className="relative py-3 px-4 rounded-xl flex flex-col items-center gap-2 group"
+                  className="group relative flex flex-col items-center gap-2 rounded-xl px-4 py-3"
                   style={{
                     backgroundColor:
                       selectedCategory === category.id
@@ -231,8 +231,8 @@ export const TechnologiesSection = () => {
                         selectedCategory === category.id
                           ? ThemeColors.accent
                           : isDark
-                          ? "rgba(255,255,255,0.5)"
-                          : "rgba(0,0,0,0.5)",
+                            ? "rgba(255,255,255,0.5)"
+                            : "rgba(0,0,0,0.5)",
                     }}
                   >
                     {category.icon}
@@ -244,8 +244,8 @@ export const TechnologiesSection = () => {
                         selectedCategory === category.id
                           ? ThemeColors.accent
                           : isDark
-                          ? "#fff"
-                          : "#000",
+                            ? "#fff"
+                            : "#000",
                     }}
                   >
                     {category.title}
@@ -273,7 +273,7 @@ export const TechnologiesSection = () => {
         </div>
 
         {/* Technology Cards Grid - Refined */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+        <div className="mx-auto grid max-w-7xl grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {technologies
             .find((cat) => cat.id === selectedCategory)
             ?.items.map((item, index) => (
@@ -305,7 +305,7 @@ export const TechnologiesSection = () => {
                 >
                   {/* Enhanced hover effect */}
                   <motion.div
-                    className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                    className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100"
                     style={{
                       background: `
                         linear-gradient(135deg, 
@@ -319,15 +319,15 @@ export const TechnologiesSection = () => {
                   />
 
                   {/* Logo and Title Section */}
-                  <div className="relative z-10 flex items-start gap-4 mb-6 group-hover:transform group-hover:translate-y-[-2px] transition-transform duration-300">
+                  <div className="relative z-10 mb-6 flex items-start gap-4 transition-transform duration-300 group-hover:translate-y-[-2px] group-hover:transform">
                     <div
-                      className="w-12 h-12 flex items-center justify-center rounded-lg transition-colors duration-300"
+                      className="flex h-12 w-12 items-center justify-center rounded-lg transition-colors duration-300"
                       style={{
                         backgroundColor: `${ThemeColors.accent}15`,
                         border: `1px solid ${ThemeColors.accent}20`,
                       }}
                     >
-                      {companyLogos[item.logo as keyof typeof companyLogos] || (
+                      {companyLogos[item.logo] ?? (
                         <span
                           className="text-xl font-bold"
                           style={{ color: ThemeColors.accent }}
@@ -337,10 +337,10 @@ export const TechnologiesSection = () => {
                       )}
                     </div>
                     <div>
-                      <h3 className="text-lg font-bold mb-1 text-text dark:text-darkText">
+                      <h3 className="text-text dark:text-darkText mb-1 text-lg font-bold">
                         {item.name}
                       </h3>
-                      <p className="text-sm text-secondaryText dark:text-darkSecondaryText">
+                      <p className="text-secondaryText dark:text-darkSecondaryText text-sm">
                         {item.description}
                       </p>
                     </div>
@@ -348,7 +348,7 @@ export const TechnologiesSection = () => {
 
                   {/* Divider */}
                   <div
-                    className="h-px w-full mb-6"
+                    className="mb-6 h-px w-full"
                     style={{
                       background: `linear-gradient(90deg, ${ThemeColors.accent}20, transparent)`,
                     }}
@@ -366,7 +366,7 @@ export const TechnologiesSection = () => {
                         transition={{ delay: 0.1 * idx }}
                       >
                         <div
-                          className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300"
+                          className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full transition-colors duration-300"
                           style={{
                             backgroundColor: `${ThemeColors.accent}10`,
                             border: `1px solid ${ThemeColors.accent}20`,
@@ -378,7 +378,7 @@ export const TechnologiesSection = () => {
                             strokeWidth={3}
                           />
                         </div>
-                        <span className="text-sm text-secondaryText dark:text-darkSecondaryText">
+                        <span className="text-secondaryText dark:text-darkSecondaryText text-sm">
                           {benefit}
                         </span>
                       </motion.div>
@@ -388,7 +388,7 @@ export const TechnologiesSection = () => {
 
                 {/* Background glow effect */}
                 <div
-                  className="absolute inset-0 -z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-2xl"
+                  className="absolute inset-0 -z-10 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100"
                   style={{
                     background: `radial-gradient(circle at 50% 50%, ${ThemeColors.accent}15, transparent 70%)`,
                   }}
