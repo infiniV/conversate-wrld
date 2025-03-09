@@ -1,6 +1,7 @@
 import "~/styles/globals.css";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono, Inter } from "next/font/google";
+import { SessionProvider } from "next-auth/react";
 
 import React from "react";
 import { ThemeProvider } from "../components/ThemeProvider";
@@ -38,15 +39,17 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${inter.className} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <TRPCReactProvider>{children}</TRPCReactProvider>
-          <ThemeSwitcher />
-        </ThemeProvider>
+        <SessionProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <TRPCReactProvider>{children}</TRPCReactProvider>
+            <ThemeSwitcher />
+          </ThemeProvider>
+        </SessionProvider>
       </body>
     </html>
   );

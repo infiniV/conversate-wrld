@@ -10,7 +10,7 @@ const LandingReveal = dynamic(() => import("../components/LandingReveal"), {
 
 const NavigationBar = dynamic(
   () => import("../components/NavigationBar").then((mod) => mod.NavigationBar),
-  { ssr: false }
+  { ssr: false },
 );
 
 const FeaturesSection = dynamic(
@@ -19,34 +19,34 @@ const FeaturesSection = dynamic(
   {
     loading: () => <div className="min-h-screen" />,
     ssr: false,
-  }
+  },
 );
 
 const PricingSection = dynamic(
   () =>
     import("../components/PricingSection").then((mod) => mod.PricingSection),
-  { ssr: false }
+  { ssr: false },
 );
 
 // Import the new TechnologiesSection component
 const TechnologiesSection = dynamic(
   () =>
     import("../components/TechnologiesSection").then(
-      (mod) => mod.TechnologiesSection
+      (mod) => mod.TechnologiesSection,
     ),
-  { ssr: false }
+  { ssr: false },
 );
 
 const TrustedCompanies = dynamic(
   () =>
     import("../components/TrustedCompanies").then(
-      (mod) => mod.TrustedCompanies
+      (mod) => mod.TrustedCompanies,
     ),
-  { ssr: false }
+  { ssr: false },
 );
 const FooterSection = dynamic(
   () => import("../components/FooterSection").then((mod) => mod.FooterSection),
-  { ssr: false }
+  { ssr: false },
 );
 export default function Home() {
   const [contentMounted, setContentMounted] = useState(false);
@@ -56,7 +56,7 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="relative w-full min-h-screen overflow-x-hidden">
+    <main className="relative min-h-screen w-full overflow-x-hidden">
       <LandingReveal onRevealComplete={handleRevealComplete} />
 
       <AnimatePresence mode="wait">

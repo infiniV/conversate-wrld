@@ -15,6 +15,8 @@ import {
 import { usePathname } from "next/navigation";
 import { ThemeColors } from "./ThemeConstants";
 import { NavigationBarBackground } from "./NavigationBarBackground";
+// import { useTheme } from "next-themes";
+import { useSession, signOut } from "next-auth/react";
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -213,6 +215,9 @@ export function NavigationBar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
+  // const { theme } = useTheme();
+  const { data: session } = useSession();
+  // const isDark = theme === "dark";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -435,6 +440,46 @@ export function NavigationBar() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        <div className="flex items-center gap-4">
+          {session ? (
+            <>
+              <span className="text-secondaryText dark:text-darkSecondaryText text-sm">
+                {session.user?.email}
+              </span>
+              <motion.button
+                onClick={() => signOut()}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="px-4 py-2 text-sm"
+                style={{
+                  clipPath:
+                    "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
+                  backgroundColor: `${ThemeColors.accent}15`,
+                  color: ThemeColors.accent,
+                }}
+              >
+                Sign Out
+              </motion.button>
+            </>
+          ) : (
+            <Link href="/auth">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="px-4 py-2 text-sm"
+                style={{
+                  clipPath:
+                    "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
+                  backgroundColor: ThemeColors.accent,
+                  color: "#ffffff",
+                }}
+              >
+                Sign In
+              </motion.button>
+            </Link>
+          )}
+        </div>
       </div>
     </motion.header>
   );
