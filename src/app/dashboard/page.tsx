@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { ThemeColors } from "~/components/ThemeConstants";
+import { api } from "~/trpc/react";
 import {
   BarChart3,
   MessagesSquare,
@@ -17,8 +18,10 @@ import {
   Bot,
   MessageSquare,
   Star,
+  LogOut,
   type LucideIcon,
 } from "lucide-react";
+import { signOut } from "next-auth/react";
 
 // Types
 interface MetricCardProps {
@@ -28,66 +31,6 @@ interface MetricCardProps {
   icon: LucideIcon;
   chart?: number[] | null;
 }
-
-interface IntegrationStatus {
-  name: string;
-  status: "operational" | "warning";
-  latency?: string;
-  message?: string;
-  icon: LucideIcon;
-}
-
-// Dummy data for demonstration
-const dummyMetrics = {
-  conversations: {
-    total: 1247,
-    increase: 12.5,
-    chart: [45, 60, 75, 65, 80, 95, 85],
-  },
-  avgResponseTime: {
-    current: "1.8s",
-    improvement: 15.3,
-    chart: [2.5, 2.2, 2.0, 1.9, 1.8, 1.8, 1.7],
-  },
-  satisfactionRate: {
-    current: 94.7,
-    increase: 3.2,
-    chart: [90, 91, 92, 93, 94, 94.7, 94.5],
-  },
-  activeAgents: {
-    current: 8,
-    total: 10,
-    statuses: [
-      { id: 1, status: "online" },
-      { id: 2, status: "online" },
-      { id: 3, status: "busy" },
-      { id: 4, status: "offline" },
-      { id: 5, status: "online" },
-    ],
-  },
-};
-
-// Integration statuses
-const integrationStatuses: IntegrationStatus[] = [
-  {
-    name: "Agent Server",
-    status: "operational",
-    latency: "24ms",
-    icon: Server,
-  },
-  {
-    name: "Communication Server",
-    status: "operational",
-    latency: "31ms",
-    icon: MessagesSquare,
-  },
-  {
-    name: "Voice Integration",
-    status: "warning",
-    message: "High latency",
-    icon: Phone,
-  },
-];
 
 const MetricCard = ({
   title,
@@ -128,20 +71,23 @@ const MetricCard = ({
             >
               <Icon className="h-5 w-5" style={{ color: ThemeColors.accent }} />
             </div>
-            <h3 style={{ 
-              color: isDark 
-                ? ThemeColors.dark.secondaryText 
-                : ThemeColors.light.secondaryText
-            }}>
+            <h3
+              style={{
+                color: isDark
+                  ? ThemeColors.dark.secondaryText
+                  : ThemeColors.light.secondaryText,
+              }}
+            >
               {title}
             </h3>
           </div>
           {typeof change !== "undefined" && (
             <div
               style={{
-                color: change >= 0 
-                  ? ThemeColors.utility.success 
-                  : ThemeColors.utility.error
+                color:
+                  change >= 0
+                    ? ThemeColors.utility.success
+                    : ThemeColors.utility.error,
               }}
               className="text-xs font-medium"
             >
@@ -152,11 +98,12 @@ const MetricCard = ({
         </div>
 
         <div className="flex items-baseline gap-2">
-          <span style={{ 
-            color: isDark 
-              ? ThemeColors.dark.text 
-              : ThemeColors.light.text
-          }} className="text-2xl font-bold">
+          <span
+            style={{
+              color: isDark ? ThemeColors.dark.text : ThemeColors.light.text,
+            }}
+            className="text-2xl font-bold"
+          >
             {value}
           </span>
         </div>
@@ -186,9 +133,18 @@ const MetricCard = ({
 };
 
 const IntegrationStatus = () => {
+  const { data: dashboardData } = api.dashboard.getDashboardMetrics.useQuery();
   const { theme, systemTheme } = useTheme();
   const currentTheme = theme === "system" ? systemTheme : theme;
   const isDark = currentTheme === "dark";
+
+  if (!dashboardData) return null;
+
+  const icons: Record<string, LucideIcon> = {
+    "Agent Server": Server,
+    "Communication Server": MessagesSquare,
+    "Voice Integration": Phone,
+  };
 
   return (
     <motion.div
@@ -217,73 +173,87 @@ const IntegrationStatus = () => {
           >
             <Gauge className="h-5 w-5" style={{ color: ThemeColors.accent }} />
           </div>
-          <h3 style={{ 
-            color: isDark 
-              ? ThemeColors.dark.secondaryText 
-              : ThemeColors.light.secondaryText 
-          }} className="text-sm font-medium">
+          <h3
+            style={{
+              color: isDark
+                ? ThemeColors.dark.secondaryText
+                : ThemeColors.light.secondaryText,
+            }}
+            className="text-sm font-medium"
+          >
             System Status
           </h3>
         </div>
 
         <div className="space-y-4">
-          {integrationStatuses.map((integration) => (
-            <div
-              key={integration.name}
-              className="flex items-center justify-between p-3"
-              style={{
-                backgroundColor: isDark
-                  ? `${ThemeColors.dark.background}80`
-                  : `${ThemeColors.light.background}80`,
-                clipPath: ThemeColors.polygons.sm,
-              }}
-            >
-              <div className="flex items-center gap-3">
-                <integration.icon 
-                  className="h-4 w-4" 
-                  style={{ 
-                    color: isDark 
-                      ? ThemeColors.dark.secondaryText 
-                      : ThemeColors.light.secondaryText 
-                  }} 
-                />
-                <span style={{ 
-                  color: isDark 
-                    ? ThemeColors.dark.text 
-                    : ThemeColors.light.text 
-                }}>
-                  {integration.name}
-                </span>
+          {dashboardData.systemStatus.map((integration) => {
+            const Icon = icons[integration.name] ?? Server; // Fallback to Server icon
+            return (
+              <div
+                key={integration.name}
+                className="flex items-center justify-between p-3"
+                style={{
+                  backgroundColor: isDark
+                    ? `${ThemeColors.dark.background}80`
+                    : `${ThemeColors.light.background}80`,
+                  clipPath: ThemeColors.polygons.sm,
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <Icon
+                    className="h-4 w-4"
+                    style={{
+                      color: isDark
+                        ? ThemeColors.dark.secondaryText
+                        : ThemeColors.light.secondaryText,
+                    }}
+                  />
+                  <span
+                    style={{
+                      color: isDark
+                        ? ThemeColors.dark.text
+                        : ThemeColors.light.text,
+                    }}
+                  >
+                    {integration.name}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  {integration.status === "operational" ? (
+                    <>
+                      <CheckCircle2
+                        className="h-4 w-4"
+                        style={{ color: ThemeColors.utility.success }}
+                      />
+                      <span
+                        style={{
+                          color: isDark
+                            ? ThemeColors.dark.secondaryText
+                            : ThemeColors.light.secondaryText,
+                        }}
+                        className="text-xs"
+                      >
+                        {integration.latency}
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertCircle
+                        className="h-4 w-4"
+                        style={{ color: ThemeColors.utility.warning }}
+                      />
+                      <span
+                        style={{ color: ThemeColors.utility.warning }}
+                        className="text-xs"
+                      >
+                        {integration.message}
+                      </span>
+                    </>
+                  )}
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                {integration.status === "operational" ? (
-                  <>
-                    <CheckCircle2 
-                      className="h-4 w-4" 
-                      style={{ color: ThemeColors.utility.success }}
-                    />
-                    <span style={{ 
-                      color: isDark 
-                        ? ThemeColors.dark.secondaryText 
-                        : ThemeColors.light.secondaryText 
-                    }} className="text-xs">
-                      {integration.latency}
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <AlertCircle 
-                      className="h-4 w-4" 
-                      style={{ color: ThemeColors.utility.warning }}
-                    />
-                    <span style={{ color: ThemeColors.utility.warning }} className="text-xs">
-                      {integration.message}
-                    </span>
-                  </>
-                )}
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </motion.div>
@@ -335,11 +305,14 @@ const AgentPerformance = () => {
           >
             <Bot className="h-5 w-5" style={{ color: ThemeColors.accent }} />
           </div>
-          <h3 style={{ 
-            color: isDark 
-              ? ThemeColors.dark.secondaryText 
-              : ThemeColors.light.secondaryText 
-          }} className="text-sm font-medium">
+          <h3
+            style={{
+              color: isDark
+                ? ThemeColors.dark.secondaryText
+                : ThemeColors.light.secondaryText,
+            }}
+            className="text-sm font-medium"
+          >
             Agent Performance
           </h3>
         </div>
@@ -354,18 +327,22 @@ const AgentPerformance = () => {
               clipPath: ThemeColors.polygons.sm,
             }}
           >
-            <div style={{ 
-              color: isDark 
-                ? ThemeColors.dark.secondaryText 
-                : ThemeColors.light.secondaryText 
-            }} className="mb-1 text-xs">
+            <div
+              style={{
+                color: isDark
+                  ? ThemeColors.dark.secondaryText
+                  : ThemeColors.light.secondaryText,
+              }}
+              className="mb-1 text-xs"
+            >
               Accuracy
             </div>
-            <div style={{ 
-              color: isDark 
-                ? ThemeColors.dark.text 
-                : ThemeColors.light.text 
-            }} className="text-xl font-bold">
+            <div
+              style={{
+                color: isDark ? ThemeColors.dark.text : ThemeColors.light.text,
+              }}
+              className="text-xl font-bold"
+            >
               {agentMetrics.accuracy}%
             </div>
           </div>
@@ -378,18 +355,22 @@ const AgentPerformance = () => {
               clipPath: ThemeColors.polygons.sm,
             }}
           >
-            <div style={{ 
-              color: isDark 
-                ? ThemeColors.dark.secondaryText 
-                : ThemeColors.light.secondaryText 
-            }} className="mb-1 text-xs">
+            <div
+              style={{
+                color: isDark
+                  ? ThemeColors.dark.secondaryText
+                  : ThemeColors.light.secondaryText,
+              }}
+              className="mb-1 text-xs"
+            >
               Avg Response
             </div>
-            <div style={{ 
-              color: isDark 
-                ? ThemeColors.dark.text 
-                : ThemeColors.light.text 
-            }} className="text-xl font-bold">
+            <div
+              style={{
+                color: isDark ? ThemeColors.dark.text : ThemeColors.light.text,
+              }}
+              className="text-xl font-bold"
+            >
               {agentMetrics.avgResponseTime}
             </div>
           </div>
@@ -425,18 +406,24 @@ const AgentPerformance = () => {
                   )}
                 </div>
                 <div>
-                  <div style={{ 
-                    color: isDark 
-                      ? ThemeColors.dark.text 
-                      : ThemeColors.light.text 
-                  }} className="text-xs font-medium">
+                  <div
+                    style={{
+                      color: isDark
+                        ? ThemeColors.dark.text
+                        : ThemeColors.light.text,
+                    }}
+                    className="text-xs font-medium"
+                  >
                     {activity.time}
                   </div>
-                  <div style={{ 
-                    color: isDark 
-                      ? ThemeColors.dark.secondaryText 
-                      : ThemeColors.light.secondaryText 
-                  }} className="text-xs">
+                  <div
+                    style={{
+                      color: isDark
+                        ? ThemeColors.dark.secondaryText
+                        : ThemeColors.light.secondaryText,
+                    }}
+                    className="text-xs"
+                  >
                     {activity.duration}
                   </div>
                 </div>
@@ -447,11 +434,12 @@ const AgentPerformance = () => {
                     key={i}
                     size={12}
                     style={{
-                      color: i < activity.satisfaction 
-                        ? ThemeColors.secondaryAccents.amber
-                        : isDark 
-                          ? ThemeColors.dark.border 
-                          : ThemeColors.light.border,
+                      color:
+                        i < activity.satisfaction
+                          ? ThemeColors.secondaryAccents.amber
+                          : isDark
+                            ? ThemeColors.dark.border
+                            : ThemeColors.light.border,
                     }}
                     fill={i < activity.satisfaction ? "currentColor" : "none"}
                   />
@@ -466,9 +454,15 @@ const AgentPerformance = () => {
 };
 
 export default function DashboardPage() {
+  const { data: dashboardData, isLoading } =
+    api.dashboard.getDashboardMetrics.useQuery();
   const { theme, systemTheme } = useTheme();
   const currentTheme = theme === "system" ? systemTheme : theme;
   const isDark = currentTheme === "dark";
+
+  if (isLoading || !dashboardData) {
+    return <div>Loading...</div>; // You might want to add a proper loading state
+  }
 
   return (
     <div className="relative min-h-screen py-8">
@@ -488,63 +482,96 @@ export default function DashboardPage() {
           {/* Header section */}
           <div className="flex items-center justify-between">
             <div>
-              <h1 
+              <h1
                 className="mb-2 text-4xl font-bold"
-                style={{ color: isDark ? ThemeColors.dark.text : ThemeColors.light.text }}
+                style={{
+                  color: isDark
+                    ? ThemeColors.dark.text
+                    : ThemeColors.light.text,
+                }}
               >
-                Dashboard
+                {dashboardData.business.name}
               </h1>
-              <p style={{ color: isDark ? ThemeColors.dark.secondaryText : ThemeColors.light.secondaryText }}>
+              <p
+                style={{
+                  color: isDark
+                    ? ThemeColors.dark.secondaryText
+                    : ThemeColors.light.secondaryText,
+                }}
+              >
                 Monitor your AI customer service performance
               </p>
             </div>
-            <motion.button
-              className="flex items-center gap-2 px-4 py-2"
-              style={{
-                clipPath: ThemeColors.polygons.sm,
-                backgroundColor: ThemeColors.accent,
-                color: ThemeColors.dark.text,
-              }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <Settings size={16} />
-              <span className="text-sm font-medium">Settings</span>
-            </motion.button>
+            <div className="flex items-center gap-4">
+              <motion.button
+                className="flex items-center gap-2 px-4 py-2"
+                style={{
+                  clipPath: ThemeColors.polygons.sm,
+                  backgroundColor: ThemeColors.accent,
+                  color: ThemeColors.dark.text,
+                }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <Settings size={16} />
+                <span className="text-sm font-medium">Settings</span>
+              </motion.button>
+              <motion.button
+                onClick={() => void signOut({ callbackUrl: "/" })}
+                className="flex items-center gap-2 px-4 py-2"
+                style={{
+                  clipPath: ThemeColors.polygons.sm,
+                  backgroundColor: isDark
+                    ? ThemeColors.dark.subtleUI
+                    : ThemeColors.light.subtleUI,
+                  color: isDark
+                    ? ThemeColors.dark.text
+                    : ThemeColors.light.text,
+                  border: `1px solid ${ThemeColors.accent}${isDark ? "33" : "20"}`,
+                }}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <LogOut size={16} style={{ color: ThemeColors.accent }} />
+                <span className="text-sm font-medium">Logout</span>
+              </motion.button>
+            </div>
           </div>
 
           {/* Metrics Grid */}
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
             <MetricCard
               title="Total Conversations"
-              value={dummyMetrics.conversations.total}
-              change={dummyMetrics.conversations.increase}
+              value={dashboardData.metrics.conversations.total}
+              change={dashboardData.metrics.conversations.increase}
               icon={MessagesSquare}
-              chart={dummyMetrics.conversations.chart}
+              chart={dashboardData.metrics.conversations.chart}
             />
             <MetricCard
               title="Avg. Response Time"
-              value={dummyMetrics.avgResponseTime.current}
-              change={-dummyMetrics.avgResponseTime.improvement}
+              value={dashboardData.metrics.contexts.avgResponseTime.current}
+              change={
+                -dashboardData.metrics.contexts.avgResponseTime.improvement
+              }
               icon={Zap}
-              chart={dummyMetrics.avgResponseTime.chart}
+              chart={dashboardData.metrics.contexts.avgResponseTime.chart}
             />
             <MetricCard
               title="Satisfaction Rate"
-              value={`${dummyMetrics.satisfactionRate.current}%`}
-              change={dummyMetrics.satisfactionRate.increase}
+              value={`${dashboardData.metrics.satisfaction.current}%`}
+              change={dashboardData.metrics.satisfaction.increase}
               icon={Users}
-              chart={dummyMetrics.satisfactionRate.chart}
+              chart={dashboardData.metrics.satisfaction.chart}
             />
             <MetricCard
-              title="Active Agents"
-              value={`${dummyMetrics.activeAgents.current}/${dummyMetrics.activeAgents.total}`}
+              title="Active Contexts"
+              value={dashboardData.metrics.contexts.total}
               icon={BarChart3}
               chart={null}
             />
           </div>
 
-          {/* Integration Status */}
+          {/* Integration Status and Agent Performance */}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             <IntegrationStatus />
             <AgentPerformance />

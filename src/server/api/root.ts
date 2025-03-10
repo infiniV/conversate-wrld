@@ -2,6 +2,7 @@ import { postRouter } from "~/server/api/routers/post";
 import { createCallerFactory, createTRPCRouter } from "~/server/api/trpc";
 import { livekitRouter } from "~/server/api/routers/livekit";
 import { onboardingRouter } from "~/server/api/routers/onboarding";
+import { dashboardRouter } from "~/server/api/routers/dashboard";
 
 /**
  * This is the primary router for your server.
@@ -12,6 +13,7 @@ export const appRouter = createTRPCRouter({
   post: postRouter,
   livekit: livekitRouter,
   onboarding: onboardingRouter,
+  dashboard: dashboardRouter,
 });
 
 // export type definition of API

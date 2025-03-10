@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { api } from "~/trpc/react";
+import { useSession } from "next-auth/react";
 
 const LandingReveal = dynamic(() => import("../components/LandingReveal"), {
   ssr: false,
@@ -25,8 +26,7 @@ const FeaturesSection = dynamic(
 );
 
 const PricingSection = dynamic(
-  () =>
-    import("../components/PricingSection").then((mod) => mod.PricingSection),
+  () => import("../components/PricingSection").then((mod) => mod.PricingSection),
   { ssr: false },
 );
 
@@ -40,9 +40,7 @@ const TechnologiesSection = dynamic(
 
 const TrustedCompanies = dynamic(
   () =>
-    import("../components/TrustedCompanies").then(
-      (mod) => mod.TrustedCompanies,
-    ),
+    import("../components/TrustedCompanies").then((mod) => mod.TrustedCompanies),
   { ssr: false },
 );
 
@@ -54,31 +52,33 @@ const FooterSection = dynamic(
 export default function Home() {
   const [contentMounted, setContentMounted] = useState(false);
   const router = useRouter();
+  const { status } = useSession();
 
-  const { data: onboardingStatus, error } =
-    api.onboarding.getOnboardingStatus.useQuery(undefined, {
+  const { data: onboardingStatus } = api.onboarding.getOnboardingStatus.useQuery(
+    undefined,
+    {
       refetchOnWindowFocus: false,
-    });
+      enabled: status === "authenticated",
+      retry: (failureCount, error) => {
+        if (error.message === "UNAUTHORIZED") return false;
+        return failureCount < 3;
+      },
+    },
+  );
 
   const handleRevealComplete = useCallback(() => {
     setTimeout(() => setContentMounted(true), 100);
   }, []);
 
-  // If user is already onboarded, redirect them to the dashboard
   useEffect(() => {
-    if (onboardingStatus?.isComplete) {
+    if (status === "authenticated" && onboardingStatus?.isComplete) {
       void router.push("/dashboard");
     }
-  }, [onboardingStatus, router]);
-
-  if (error) {
-    return null; // Or a proper error UI
-  }
+  }, [onboardingStatus, router, status]);
 
   return (
     <main className="relative min-h-screen w-full overflow-x-hidden">
       <LandingReveal onRevealComplete={handleRevealComplete} />
-
       <AnimatePresence mode="wait">
         {contentMounted && (
           <motion.div

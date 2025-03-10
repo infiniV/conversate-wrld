@@ -15,7 +15,6 @@ import {
 import { usePathname } from "next/navigation";
 import { ThemeColors } from "./ThemeConstants";
 import { NavigationBarBackground } from "./NavigationBarBackground";
-// import { useTheme } from "next-themes";
 import { useSession, signOut } from "next-auth/react";
 
 interface NavItemProps {
@@ -180,17 +179,11 @@ const LogoSection = () => {
   );
 };
 
-// Replace the existing NavBackground with our new component
 const NavBackground = () => {
   return (
     <div className="absolute inset-0 z-0 overflow-hidden">
-      {/* Theme-aware background with minimal blur */}
       <div className="absolute inset-0 bg-white/5 backdrop-blur-sm dark:bg-black/70" />
-
-      {/* New polygon background */}
       <NavigationBarBackground />
-
-      {/* Minimal accent line */}
       <div className="absolute inset-0">
         <motion.div
           className="absolute bottom-0 h-[1px] w-full"
@@ -215,9 +208,7 @@ export function NavigationBar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const pathname = usePathname();
-  // const { theme } = useTheme();
   const { data: session } = useSession();
-  // const isDark = theme === "dark";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -256,84 +247,120 @@ export function NavigationBar() {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }}
     >
-      {/* Only show NavBackground when scrolled */}
       {scrolled && <NavBackground />}
 
       <div className="container relative z-10 mx-auto max-w-6xl px-4">
         <div className="flex items-center justify-between">
-          <LogoSection />
+          <div className="flex items-center gap-6">
+            <LogoSection />
 
-          <div className="flex items-center gap-3">
             {/* Desktop Navigation */}
             <motion.nav
-              className="hidden border-l border-white/5 pl-3 sm:block"
+              className="hidden items-center gap-4 pl-6 sm:flex"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3, duration: 0.5 }}
             >
-              <ul className="flex space-x-2">
+              <div className="flex items-center gap-2 border-l border-white/5 pl-6">
                 {navItems.map((item, index) => (
-                  <li key={item.href}>
-                    <NavItem
-                      icon={item.icon}
-                      label={item.label}
-                      href={item.href}
-                      isActive={pathname === item.href}
-                      index={index}
-                    />
-                  </li>
+                  <NavItem
+                    key={item.href}
+                    icon={item.icon}
+                    label={item.label}
+                    href={item.href}
+                    isActive={pathname === item.href}
+                    index={index}
+                  />
                 ))}
-              </ul>
-            </motion.nav>
 
-            {/* Mobile Menu Button */}
-            <motion.button
-              className="p-1.5 sm:hidden"
-              style={{
-                clipPath:
-                  "polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px))",
-                backgroundColor: mobileMenuOpen
-                  ? ThemeColors.accent
-                  : "rgba(255,255,255,0.03)",
-                boxShadow: mobileMenuOpen
-                  ? "0 0 12px rgba(255,61,113,0.2), inset 0 1px 0 rgba(255,255,255,0.1)"
-                  : "none",
-              }}
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              whileHover={{ scale: 1.03, y: -1 }}
-              whileTap={{ scale: 0.95, y: 1 }}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.3 }}
-            >
-              <AnimatePresence mode="wait">
-                {mobileMenuOpen ? (
-                  <motion.div
-                    key="close"
-                    initial={{ rotate: -90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: 90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
+                {/* Integrate auth section into nav items */}
+                {session ? (
+                  <motion.button
+                    onClick={() => void signOut()}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="ml-2 flex items-center gap-2 px-4 py-1.5 text-xs font-medium tracking-wide"
+                    style={{
+                      clipPath:
+                        "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))",
+                      backgroundColor: `${ThemeColors.accent}15`,
+                      color: ThemeColors.accent,
+                    }}
                   >
-                    <X size={14} className="text-white" />
-                  </motion.div>
+                    <span className="mr-2 text-sm text-gray-600 dark:text-gray-300">
+                      {session.user?.email?.split("@")[0]}
+                    </span>
+                    <span>SIGN OUT</span>
+                  </motion.button>
                 ) : (
-                  <motion.div
-                    key="menu"
-                    initial={{ rotate: 90, opacity: 0 }}
-                    animate={{ rotate: 0, opacity: 1 }}
-                    exit={{ rotate: -90, opacity: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <Menu size={14} className="text-gray-800 dark:text-white" />
-                  </motion.div>
+                  <Link href="/auth" className="ml-2">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="flex items-center gap-2 px-4 py-1.5 text-xs font-medium tracking-wide"
+                      style={{
+                        clipPath:
+                          "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))",
+                        backgroundColor: ThemeColors.accent,
+                        color: "#ffffff",
+                      }}
+                    >
+                      <span>SIGN IN</span>
+                      <ArrowRight size={12} />
+                    </motion.button>
+                  </Link>
                 )}
-              </AnimatePresence>
-            </motion.button>
+              </div>
+            </motion.nav>
           </div>
+
+          {/* Mobile Menu Button */}
+          <motion.button
+            className="p-1.5 sm:hidden"
+            style={{
+              clipPath:
+                "polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px))",
+              backgroundColor: mobileMenuOpen
+                ? ThemeColors.accent
+                : "rgba(255,255,255,0.03)",
+              boxShadow: mobileMenuOpen
+                ? "0 0 12px rgba(255,61,113,0.2), inset 0 1px 0 rgba(255,255,255,0.1)"
+                : "none",
+            }}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            whileHover={{ scale: 1.03, y: -1 }}
+            whileTap={{ scale: 0.95, y: 1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            <AnimatePresence mode="wait">
+              {mobileMenuOpen ? (
+                <motion.div
+                  key="close"
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <X size={14} className="text-white" />
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="menu"
+                  initial={{ rotate: 90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: -90, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Menu size={14} className="text-gray-800 dark:text-white" />
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.button>
         </div>
 
-        {/* Mobile Menu - Updated with light/dark support */}
+        {/* Mobile Menu */}
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
@@ -344,28 +371,14 @@ export function NavigationBar() {
                 backdropFilter: "blur(12px)",
                 background: "rgba(255,255,255,0.85) dark:rgba(0,0,0,0.75)",
                 border: `1px solid ${ThemeColors.accent}15`,
-                boxShadow: `0 8px 16px -4px rgba(0,0,0,0.1), 
-                  inset 0 0 0 1px rgba(255,255,255,0.05)`,
+                boxShadow:
+                  "0 8px 16px -4px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,0.05)",
               }}
               initial={{ opacity: 0, height: 0, y: -10 }}
               animate={{ opacity: 1, height: "auto", y: 0 }}
               exit={{ opacity: 0, height: 0, y: -10 }}
               transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
             >
-              {/* Ambient background effects */}
-              <div className="absolute inset-0 z-0">
-                <div className="absolute inset-0 bg-gradient-to-b from-transparent to-white/5 dark:to-black/5" />
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    backgroundImage: `linear-gradient(rgba(255,255,255,0.01) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(255,255,255,0.01) 1px, transparent 1px)`,
-                    backgroundSize: "16px 16px",
-                    opacity: 0.5,
-                  }}
-                />
-              </div>
-
               <div className="relative z-10 p-2">
                 <ul className="flex flex-col space-y-1">
                   {navItems.map((item, index) => (
@@ -386,100 +399,60 @@ export function NavigationBar() {
                         background: `linear-gradient(90deg, transparent, ${ThemeColors.accent}15, transparent)`,
                       }}
                     />
-                    <Link href="/get-started" className="block w-full">
-                      <motion.div
-                        className="flex items-center justify-center gap-2 px-3 py-1.5 text-white"
+                    {session ? (
+                      <motion.button
+                        onClick={() => void signOut()}
+                        className="flex w-full items-center justify-center gap-2 px-3 py-1.5"
                         style={{
                           clipPath:
                             "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))",
-                          backgroundColor: ThemeColors.accent,
-                          boxShadow: `0 0 15px ${ThemeColors.accent}33,
-                            inset 0 1px 0 rgba(255,255,255,0.1)`,
+                          backgroundColor: `${ThemeColors.accent}15`,
+                          color: ThemeColors.accent,
                         }}
                         whileHover={{ scale: 1.01, y: -1 }}
                         whileTap={{ scale: 0.99, y: 1 }}
                       >
-                        <motion.span
-                          className="text-xs font-semibold tracking-widest"
-                          initial={{ x: -5, opacity: 0 }}
-                          animate={{ x: 0, opacity: 1 }}
-                          transition={{ delay: 0.1 }}
-                        >
-                          GET STARTED
-                        </motion.span>
+                        <span className="text-xs font-semibold tracking-widest">
+                          SIGN OUT ({session.user?.email?.split("@")[0]})
+                        </span>
+                      </motion.button>
+                    ) : (
+                      <Link href="/auth" className="block w-full">
                         <motion.div
-                          initial={{ x: -3, opacity: 0 }}
-                          animate={{ x: 0, opacity: 1 }}
-                          transition={{ delay: 0.2 }}
+                          className="flex items-center justify-center gap-2 px-3 py-1.5 text-white"
+                          style={{
+                            clipPath:
+                              "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))",
+                            backgroundColor: ThemeColors.accent,
+                            boxShadow: `0 0 15px ${ThemeColors.accent}33, inset 0 1px 0 rgba(255,255,255,0.1)`,
+                          }}
+                          whileHover={{ scale: 1.01, y: -1 }}
+                          whileTap={{ scale: 0.99, y: 1 }}
                         >
-                          <ArrowRight size={12} />
+                          <motion.span
+                            className="text-xs font-semibold tracking-widest"
+                            initial={{ x: -5, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            transition={{ delay: 0.1 }}
+                          >
+                            SIGN IN
+                          </motion.span>
+                          <motion.div
+                            initial={{ x: -3, opacity: 0 }}
+                            animate={{ x: 0, opacity: 1 }}
+                            transition={{ delay: 0.2 }}
+                          >
+                            <ArrowRight size={12} />
+                          </motion.div>
                         </motion.div>
-                      </motion.div>
-                    </Link>
+                      </Link>
+                    )}
                   </li>
                 </ul>
               </div>
-
-              {/* Glow effect */}
-              <motion.div
-                className="absolute bottom-0 right-0 z-0 h-32 w-32"
-                style={{
-                  background: `radial-gradient(circle, ${ThemeColors.accent}10 0%, transparent 70%)`,
-                  filter: "blur(20px)",
-                }}
-                animate={{
-                  opacity: [0.3, 0.5, 0.3],
-                  scale: [0.9, 1.1, 0.9],
-                }}
-                transition={{
-                  duration: 4,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }}
-              />
             </motion.div>
           )}
         </AnimatePresence>
-
-        <div className="flex items-center gap-4">
-          {session ? (
-            <>
-              <span className="text-secondaryText dark:text-darkSecondaryText text-sm">
-                {session.user?.email}
-              </span>
-              <motion.button
-                onClick={() => signOut()}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="px-4 py-2 text-sm"
-                style={{
-                  clipPath:
-                    "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
-                  backgroundColor: `${ThemeColors.accent}15`,
-                  color: ThemeColors.accent,
-                }}
-              >
-                Sign Out
-              </motion.button>
-            </>
-          ) : (
-            <Link href="/auth">
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="px-4 py-2 text-sm"
-                style={{
-                  clipPath:
-                    "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
-                  backgroundColor: ThemeColors.accent,
-                  color: "#ffffff",
-                }}
-              >
-                Sign In
-              </motion.button>
-            </Link>
-          )}
-        </div>
       </div>
     </motion.header>
   );
