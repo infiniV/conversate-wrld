@@ -1,8 +1,10 @@
 "use client";
 
-import { useState, useCallback, Suspense } from "react";
+import { useState, useCallback, useEffect, Suspense } from "react";
 import dynamic from "next/dynamic";
 import { AnimatePresence, motion } from "framer-motion";
+import { useRouter } from "next/navigation";
+import { api } from "~/trpc/react";
 
 const LandingReveal = dynamic(() => import("../components/LandingReveal"), {
   ssr: false,
@@ -28,7 +30,6 @@ const PricingSection = dynamic(
   { ssr: false },
 );
 
-// Import the new TechnologiesSection component
 const TechnologiesSection = dynamic(
   () =>
     import("../components/TechnologiesSection").then(
@@ -44,16 +45,35 @@ const TrustedCompanies = dynamic(
     ),
   { ssr: false },
 );
+
 const FooterSection = dynamic(
   () => import("../components/FooterSection").then((mod) => mod.FooterSection),
   { ssr: false },
 );
+
 export default function Home() {
   const [contentMounted, setContentMounted] = useState(false);
+  const router = useRouter();
+
+  const { data: onboardingStatus, error } =
+    api.onboarding.getOnboardingStatus.useQuery(undefined, {
+      refetchOnWindowFocus: false,
+    });
 
   const handleRevealComplete = useCallback(() => {
     setTimeout(() => setContentMounted(true), 100);
   }, []);
+
+  // If user is already onboarded, redirect them to the dashboard
+  useEffect(() => {
+    if (onboardingStatus?.isComplete) {
+      void router.push("/dashboard");
+    }
+  }, [onboardingStatus, router]);
+
+  if (error) {
+    return null; // Or a proper error UI
+  }
 
   return (
     <main className="relative min-h-screen w-full overflow-x-hidden">
@@ -80,8 +100,10 @@ export default function Home() {
                 }}
               >
                 <FeaturesSection />
-                <PricingSection />
-                <TechnologiesSection /> {/* Add the new section here */}
+                <div id="pricing">
+                  <PricingSection />
+                </div>
+                <TechnologiesSection />
                 <TrustedCompanies />
                 <FooterSection />
               </motion.div>

@@ -5,14 +5,59 @@ import { ThemeColors } from "./ThemeConstants";
 import { useTheme } from "next-themes";
 import { Check, ArrowRight, Sparkles } from "lucide-react";
 import { FuturisticSideLightBackground } from "./FuturisticSideLightBackground";
+import { api } from "~/trpc/react";
+import { useRouter, usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export const PricingSection = () => {
   const { theme, systemTheme } = useTheme();
+  const router = useRouter();
+  const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  // Only use theme after component is mounted
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const currentTheme = theme === "system" ? systemTheme : theme;
-  const isDark = currentTheme === "dark";
+  const isDark = mounted && currentTheme === "dark";
+  const isStandalonePricingPage = pathname === "/pricing";
+
+  const { data: onboardingStatus } =
+    api.onboarding.getOnboardingStatus.useQuery(undefined, {
+      // Don't show loading state if we're just revalidating
+      refetchOnWindowFocus: false,
+    });
+
+  const createSubscription = api.onboarding.createSubscription.useMutation({
+    onSuccess: () => {
+      router.push("/onboarding/business-profile");
+    },
+  });
+
+  // If user is already onboarded, redirect them to the dashboard
+  useEffect(() => {
+    if (onboardingStatus?.isComplete) {
+      router.push("/dashboard");
+    }
+  }, [onboardingStatus, router]);
+
+  const handlePlanSelection = async (planId: string) => {
+    try {
+      await createSubscription.mutateAsync({
+        planId,
+        // In a real implementation, we would handle payment here
+        paymentToken: "dummy_token",
+      });
+    } catch (error) {
+      console.error("Failed to create subscription:", error);
+    }
+  };
 
   const plans = [
     {
+      id: "starter",
       name: "Starter",
       price: "$99",
       period: "/month",
@@ -27,6 +72,7 @@ export const PricingSection = () => {
       ],
     },
     {
+      id: "professional",
       name: "Professional",
       price: "$299",
       period: "/month",
@@ -44,6 +90,7 @@ export const PricingSection = () => {
       popular: true,
     },
     {
+      id: "enterprise",
       name: "Enterprise",
       price: "Custom",
       period: "",
@@ -64,13 +111,14 @@ export const PricingSection = () => {
   ];
 
   return (
-    <section className="bg-transparent py-32 px-4 relative overflow-hidden">
-      {/* Add the PricingSectionBackground for stars */}
+    <section
+      className={`relative overflow-hidden bg-transparent px-4 ${isStandalonePricingPage ? "pt-16" : "py-32"}`}
+    >
       <FuturisticSideLightBackground side="both" intensity={0.6} />
 
-      <div className="max-w-7xl mx-auto relative z-10">
+      <div className="relative z-10 mx-auto max-w-7xl">
         <motion.div
-          className="text-center mb-20"
+          className="mb-20 text-center"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -78,7 +126,7 @@ export const PricingSection = () => {
         >
           {/* Add decorative element above title */}
           <motion.div
-            className="flex items-center justify-center gap-2 mb-4"
+            className="mb-4 flex items-center justify-center gap-2"
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -95,20 +143,16 @@ export const PricingSection = () => {
             />
           </motion.div>
 
-          <h2 className="text-5xl font-bold mb-6 tracking-tight">
+          <h2 className="mb-6 text-5xl font-bold tracking-tight">
             Simple, Transparent <span className="text-[#FF3D71]">Pricing</span>
           </h2>
-          <p
-            className={`text-lg max-w-2xl mx-auto ${
-              isDark ? "text-gray-400" : "text-gray-600"
-            }`}
-          >
+          <p className="mx-auto max-w-2xl text-lg text-gray-600 transition-colors duration-200">
             Choose the perfect plan for your business needs. Scale your customer
             service with our intelligent solutions.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {plans.map((plan, index) => (
             <motion.div
               key={plan.name}
@@ -119,8 +163,8 @@ export const PricingSection = () => {
               whileHover={{ y: -5 }}
             >
               <div
-                className={`h-full  relative p-8 group transition-all duration-300 ${
-                  isDark
+                className={`group relative h-full p-8 transition-all duration-300 ${
+                  mounted && isDark
                     ? "bg-[rgba(255,255,255,0.02)]"
                     : "bg-[rgba(0,0,0,0.01)]"
                 }`}
@@ -130,16 +174,16 @@ export const PricingSection = () => {
                   border: `1px solid ${
                     plan.popular
                       ? ThemeColors.accent
-                      : isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "rgba(0,0,0,0.1)"
+                      : mounted && isDark
+                        ? "rgba(255,255,255,0.1)"
+                        : "rgba(0,0,0,0.1)"
                   }`,
                   backdropFilter: "blur(12px)",
                 }}
               >
                 {/* Rest of the code remains the same */}
                 {/* Add hover glow effect */}
-                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                   <div
                     className="absolute inset-0 blur-2xl"
                     style={{
@@ -150,7 +194,7 @@ export const PricingSection = () => {
 
                 {plan.popular && (
                   <motion.div
-                    className="absolute -top-3 left-1/2 -translate-x-1/2 mt-1"
+                    className="absolute -top-3 left-1/2 mt-1 -translate-x-1/2"
                     initial={{ y: -10, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ delay: 0.5 }}
@@ -169,28 +213,20 @@ export const PricingSection = () => {
                   </motion.div>
                 )}
 
-                <div className="text-center mb-8">
-                  <h3 className="text-xl font-bold mb-2">{plan.name}</h3>
-                  <div className="flex justify-center items-baseline">
+                <div className="mb-8 text-center">
+                  <h3 className="mb-2 text-xl font-bold">{plan.name}</h3>
+                  <div className="flex items-baseline justify-center">
                     <span className="text-4xl font-bold">{plan.price}</span>
-                    <span
-                      className={`ml-1 ${
-                        isDark ? "text-gray-400" : "text-gray-600"
-                      }`}
-                    >
+                    <span className="ml-1 text-gray-600 transition-colors duration-200">
                       {plan.period}
                     </span>
                   </div>
-                  <p
-                    className={`mt-2 text-sm ${
-                      isDark ? "text-gray-400" : "text-gray-600"
-                    }`}
-                  >
+                  <p className="mt-2 text-sm text-gray-600 transition-colors duration-200">
                     {plan.description}
                   </p>
                 </div>
 
-                <ul className="space-y-4 mb-8">
+                <ul className="mb-8 space-y-4">
                   {plan.features.map((feature, featureIndex) => (
                     <motion.li
                       key={feature}
@@ -201,7 +237,7 @@ export const PricingSection = () => {
                       transition={{ delay: 0.1 * featureIndex }}
                     >
                       <div
-                        className="w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-colors duration-300"
+                        className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full transition-colors duration-300"
                         style={{
                           backgroundColor: `${ThemeColors.accent}15`,
                         }}
@@ -212,11 +248,7 @@ export const PricingSection = () => {
                           strokeWidth={3}
                         />
                       </div>
-                      <span
-                        className={`text-sm ${
-                          isDark ? "text-gray-300" : "text-gray-600"
-                        }`}
-                      >
+                      <span className="text-sm text-gray-600 transition-colors duration-200">
                         {feature}
                       </span>
                     </motion.li>
@@ -224,31 +256,31 @@ export const PricingSection = () => {
                 </ul>
 
                 <motion.button
-                  className="w-full flex items-center justify-center gap-2 text-sm font-semibold px-6 py-4"
+                  className="flex w-full items-center justify-center gap-2 px-6 py-4 text-sm font-semibold transition-colors duration-200"
                   style={{
                     clipPath:
                       "polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px))",
                     backgroundColor: plan.popular
                       ? ThemeColors.accent
                       : "transparent",
-                    border: plan.popular
-                      ? "none"
-                      : isDark
-                      ? "1px solid rgba(255,255,255,0.2)"
-                      : "1px solid rgba(0,0,0,0.1)",
-                    color: plan.popular
-                      ? "white"
-                      : isDark
-                      ? "#FFFFFF"
-                      : "#111827",
+                    border: plan.popular ? "none" : "1px solid rgba(0,0,0,0.1)",
+                    color: plan.popular ? "white" : "#111827",
                   }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
+                  onClick={() =>
+                    plan.name === "Enterprise"
+                      ? router.push("/contact-sales")
+                      : handlePlanSelection(plan.id)
+                  }
+                  disabled={createSubscription.status === "pending"}
                 >
                   <span className="tracking-wide">
-                    {plan.name === "Enterprise"
-                      ? "Contact Sales"
-                      : "Get Started"}
+                    {createSubscription.status === "pending"
+                      ? "Processing..."
+                      : plan.name === "Enterprise"
+                        ? "Contact Sales"
+                        : "Get Started"}
                   </span>
                   <motion.div
                     animate={{ x: [0, 4, 0] }}

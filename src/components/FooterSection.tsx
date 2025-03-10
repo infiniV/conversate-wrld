@@ -54,7 +54,7 @@ export const FooterSection = () => {
 
   return (
     <footer
-      className="relative pt-20 pb-10"
+      className="relative pb-10 pt-20"
       style={{
         backgroundColor: isDark
           ? ThemeColors.dark.background
@@ -66,7 +66,7 @@ export const FooterSection = () => {
       {/* Polygonic background */}
       <FooterBackground />
 
-      <div className="max-w-7xl mx-auto px-6 relative z-10">
+      <div className="relative z-10 mx-auto max-w-7xl px-6">
         {/* Newsletter Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -86,14 +86,14 @@ export const FooterSection = () => {
               padding: "2.5rem",
             }}
           >
-            <div className="grid md:grid-cols-5 gap-8">
+            <div className="grid gap-8 md:grid-cols-5">
               <div className="md:col-span-3">
                 <motion.h3
                   initial={{ opacity: 0 }}
                   whileInView={{ opacity: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.2 }}
-                  className="text-2xl font-bold mb-4"
+                  className="mb-4 text-2xl font-bold"
                   style={{
                     color: isDark
                       ? ThemeColors.dark.text
@@ -148,8 +148,8 @@ export const FooterSection = () => {
                 </div>
               </div>
 
-              <div className="md:col-span-2 flex flex-col justify-center">
-                <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col justify-center md:col-span-2">
+                <div className="flex flex-col gap-3 sm:flex-row">
                   <motion.input
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
@@ -216,7 +216,7 @@ export const FooterSection = () => {
         </motion.div>
 
         {/* Links Section */}
-        <div className="grid grid-cols-2 md:grid-cols-12 gap-8 mb-16">
+        <div className="mb-16 grid grid-cols-2 gap-8 md:grid-cols-12">
           {/* Brand Column */}
           <motion.div
             className="col-span-2 md:col-span-4"
@@ -225,7 +225,7 @@ export const FooterSection = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5 }}
           >
-            <div className="flex items-center gap-3 mb-4">
+            <div className="mb-4 flex items-center gap-3">
               <div
                 style={{
                   padding: "0.625rem",
@@ -381,7 +381,7 @@ export const FooterSection = () => {
 
         {/* Bottom Section */}
         <motion.div
-          className="pt-6 relative"
+          className="relative pt-6"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
@@ -401,7 +401,7 @@ export const FooterSection = () => {
             }}
           />
 
-          <div className="flex flex-col md:flex-row justify-between items-center">
+          <div className="flex flex-col items-center justify-between md:flex-row">
             <p
               style={{
                 fontSize: "0.75rem",
@@ -411,7 +411,7 @@ export const FooterSection = () => {
                 marginBottom: "0.5rem",
                 textAlign: "center",
               }}
-              className="md:text-left md:mb-0"
+              className="md:mb-0 md:text-left"
             >
               &copy; {new Date().getFullYear()} Conversate AI. All rights
               reserved.

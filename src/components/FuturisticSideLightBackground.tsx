@@ -11,13 +11,18 @@ export const FuturisticSideLightBackground = ({
   side?: "left" | "right" | "both";
   intensity?: number;
 }) => {
-  // Responsive values based on viewport
   const [dimensions, setDimensions] = useState({
-    width: typeof window !== "undefined" ? window.innerWidth : 1200,
-    height: typeof window !== "undefined" ? window.innerHeight : 800,
+    width: 1200,
+    height: 800,
   });
 
   useEffect(() => {
+    // Only update dimensions after initial mount
+    setDimensions({
+      width: window.innerWidth,
+      height: window.innerHeight,
+    });
+
     const handleResize = () => {
       setDimensions({
         width: window.innerWidth,
@@ -30,16 +35,14 @@ export const FuturisticSideLightBackground = ({
   }, []);
 
   const generateSideBeams = (isLeft: boolean) => {
-    const width = dimensions.width;
-    const height = dimensions.height;
-    const startX = isLeft ? 0 : width;
-    const endX = isLeft ? width * 0.4 : width * 0.6;
+    const startX = isLeft ? 0 : dimensions.width;
+    const endX = isLeft ? dimensions.width * 0.4 : dimensions.width * 0.6;
+    const baseHeight = dimensions.height;
 
     return [
-      // Main diagonal beam
-      `M${startX},${height * 0.2} L${endX},${height * 0.4}`,
-      `M${startX},${height * 0.5} L${endX},${height * 0.6}`,
-      `M${startX},${height * 0.8} L${endX},${height * 0.7}`,
+      `M${startX},${baseHeight * 0.2} L${endX},${baseHeight * 0.4}`,
+      `M${startX},${baseHeight * 0.5} L${endX},${baseHeight * 0.6}`,
+      `M${startX},${baseHeight * 0.8} L${endX},${baseHeight * 0.7}`,
     ];
   };
 
@@ -50,6 +53,17 @@ export const FuturisticSideLightBackground = ({
 
   const maxDimension = Math.max(dimensions.width, dimensions.height);
   const scaleFactor = maxDimension / 1000;
+
+  // Precompute particle positions for consistency
+  const particles = Array.from({ length: 6 }).map((_, i) => {
+    const isLeftSide = i % 2 === 0;
+    return {
+      left: isLeftSide ? 10 + ((i * 20) % 20) : 70 + ((i * 20) % 20),
+      top: 20 + ((i * 15) % 60),
+      duration: 3 + i * 0.5,
+      delay: i * 0.5,
+    };
+  });
 
   return (
     <div className="pointer-events-none absolute inset-0 z-0 overflow-hidden">
@@ -80,10 +94,7 @@ export const FuturisticSideLightBackground = ({
               strokeLinecap="round"
               fill="none"
               initial={{ pathLength: 0, opacity: 0 }}
-              animate={{
-                pathLength: 1,
-                opacity: [0.4, 0.8, 0.4],
-              }}
+              animate={{ pathLength: 1, opacity: [0.4, 0.8, 0.4] }}
               transition={{
                 pathLength: { duration: 2, delay: index * 0.3 },
                 opacity: { duration: 3, repeat: Infinity, delay: index * 0.3 },
@@ -126,10 +137,7 @@ export const FuturisticSideLightBackground = ({
               strokeLinecap="round"
               fill="none"
               initial={{ pathLength: 0, opacity: 0 }}
-              animate={{
-                pathLength: 1,
-                opacity: [0.4, 0.8, 0.4],
-              }}
+              animate={{ pathLength: 1, opacity: [0.4, 0.8, 0.4] }}
               transition={{
                 pathLength: { duration: 2, delay: 0.5 + index * 0.3 },
                 opacity: {
@@ -153,14 +161,8 @@ export const FuturisticSideLightBackground = ({
             background: `linear-gradient(90deg, ${ThemeColors.accent}40 0%, transparent 100%)`,
             filter: `blur(${Math.max(20, 40 * scaleFactor)}px)`,
           }}
-          animate={{
-            opacity: [0.6, 1, 0.6],
-          }}
-          transition={{
-            duration: 4,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
+          animate={{ opacity: [0.6, 1, 0.6] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         />
       )}
 
@@ -173,9 +175,7 @@ export const FuturisticSideLightBackground = ({
             background: `linear-gradient(-90deg, ${ThemeColors.accent}40 0%, transparent 100%)`,
             filter: `blur(${Math.max(20, 40 * scaleFactor)}px)`,
           }}
-          animate={{
-            opacity: [0.6, 1, 0.6],
-          }}
+          animate={{ opacity: [0.6, 1, 0.6] }}
           transition={{
             duration: 4,
             repeat: Infinity,
@@ -186,7 +186,7 @@ export const FuturisticSideLightBackground = ({
       )}
 
       {/* Minimal floating particles */}
-      {Array.from({ length: 6 }).map((_, i) => {
+      {particles.map((particle, i) => {
         const isLeftSide = i % 2 === 0;
         if (
           (isLeftSide && side !== "right") ||
@@ -200,22 +200,18 @@ export const FuturisticSideLightBackground = ({
                 width: `${Math.max(2, 4 * scaleFactor)}px`,
                 height: `${Math.max(2, 4 * scaleFactor)}px`,
                 backgroundColor: ThemeColors.accent,
-                boxShadow: `0 0 ${Math.max(4, 8 * scaleFactor)}px ${
-                  ThemeColors.accent
-                }`,
-                left: isLeftSide
-                  ? `${10 + Math.random() * 20}%`
-                  : `${70 + Math.random() * 20}%`,
-                top: `${20 + Math.random() * 60}%`,
+                boxShadow: `0 0 ${Math.max(4, 8 * scaleFactor)}px ${ThemeColors.accent}`,
+                left: `${particle.left}%`,
+                top: `${particle.top}%`,
               }}
               animate={{
                 x: [0, isLeftSide ? 40 : -40, 0],
                 opacity: [0.2, 1, 0.2],
               }}
               transition={{
-                duration: 3 + Math.random() * 2,
+                duration: particle.duration,
                 repeat: Infinity,
-                delay: i * 0.5,
+                delay: particle.delay,
               }}
             />
           );

@@ -504,7 +504,7 @@ export const LandingHero = () => {
                 {/* Centered buttons */}
                 <div className="flex flex-col justify-center gap-4 sm:flex-row">
                   <motion.a
-                    href="/get-started"
+                    href="/pricing"
                     className="flex w-full items-center justify-center gap-3 px-7 py-3.5 text-sm font-semibold text-white sm:w-auto"
                     style={{
                       clipPath:
