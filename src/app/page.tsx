@@ -26,7 +26,8 @@ const FeaturesSection = dynamic(
 );
 
 const PricingSection = dynamic(
-  () => import("../components/PricingSection").then((mod) => mod.PricingSection),
+  () =>
+    import("../components/PricingSection").then((mod) => mod.PricingSection),
   { ssr: false },
 );
 
@@ -40,7 +41,9 @@ const TechnologiesSection = dynamic(
 
 const TrustedCompanies = dynamic(
   () =>
-    import("../components/TrustedCompanies").then((mod) => mod.TrustedCompanies),
+    import("../components/TrustedCompanies").then(
+      (mod) => mod.TrustedCompanies,
+    ),
   { ssr: false },
 );
 
@@ -54,17 +57,15 @@ export default function Home() {
   const router = useRouter();
   const { status } = useSession();
 
-  const { data: onboardingStatus } = api.onboarding.getOnboardingStatus.useQuery(
-    undefined,
-    {
+  const { data: onboardingStatus } =
+    api.onboarding.getOnboardingStatus.useQuery(undefined, {
       refetchOnWindowFocus: false,
       enabled: status === "authenticated",
       retry: (failureCount, error) => {
         if (error.message === "UNAUTHORIZED") return false;
         return failureCount < 3;
       },
-    },
-  );
+    });
 
   const handleRevealComplete = useCallback(() => {
     setTimeout(() => setContentMounted(true), 100);

@@ -2,7 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
-import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  useTransform,
+} from "framer-motion";
 import { Sun, Moon } from "lucide-react";
 import { ThemeColors } from "./ThemeConstants";
 import React from "react";
@@ -36,7 +41,7 @@ export const ThemeSwitcher = () => {
       <div className="group relative">
         {/* Ambient glow effect */}
         <motion.div
-          className="absolute -inset-3 blur-2xl opacity-0 transition-opacity duration-500 group-hover:opacity-50"
+          className="absolute -inset-3 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-50"
           style={{
             background: `radial-gradient(circle at center, ${ThemeColors.accent}30 0%, transparent 70%)`,
           }}
@@ -52,13 +57,15 @@ export const ThemeSwitcher = () => {
           style={{
             clipPath:
               "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))",
-            background: theme === "dark" 
-              ? "linear-gradient(180deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.85) 100%)" 
-              : "linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)",
+            background:
+              theme === "dark"
+                ? "linear-gradient(180deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.85) 100%)"
+                : "linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.85) 100%)",
             border: `1px solid ${ThemeColors.accent}${theme === "dark" ? "20" : "15"}`,
-            boxShadow: theme === "dark"
-              ? `0 4px 15px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.05)`
-              : `0 4px 15px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,0.9)`,
+            boxShadow:
+              theme === "dark"
+                ? `0 4px 15px rgba(0,0,0,0.3), inset 0 0 0 1px rgba(255,255,255,0.05)`
+                : `0 4px 15px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,0.9)`,
           }}
           whileHover={{
             scale: 1.02,
@@ -105,7 +112,9 @@ export const ThemeSwitcher = () => {
                     rotate: theme === "dark" ? 0 : -90,
                   }}
                   whileHover={{ scale: theme === "dark" ? 1.1 : 0.9 }}
-                  style={{ color: theme === "dark" ? ThemeColors.accent : "#9CA3AF" }}
+                  style={{
+                    color: theme === "dark" ? ThemeColors.accent : "#9CA3AF",
+                  }}
                   transition={{ duration: 0.3 }}
                 >
                   <Moon size={16} strokeWidth={2} />
@@ -117,7 +126,9 @@ export const ThemeSwitcher = () => {
                     rotate: theme === "light" ? 0 : 90,
                   }}
                   whileHover={{ scale: theme === "light" ? 1.1 : 0.9 }}
-                  style={{ color: theme === "light" ? ThemeColors.accent : "#9CA3AF" }}
+                  style={{
+                    color: theme === "light" ? ThemeColors.accent : "#9CA3AF",
+                  }}
                   transition={{ duration: 0.3 }}
                 >
                   <Sun size={16} strokeWidth={2} />
