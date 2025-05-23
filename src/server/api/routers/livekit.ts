@@ -21,6 +21,8 @@ export const livekitRouter = createTRPCRouter({
         throw new Error("Server misconfigured");
       }
 
+      // The room parameter is now a base64 encoded JSON string containing LiveKitRoomConfig
+      // We use it directly as the room name for LiveKit
       const at = new AccessToken(apiKey, apiSecret, { identity: username });
       at.addGrant({
         room,

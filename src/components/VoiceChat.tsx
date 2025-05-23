@@ -13,6 +13,8 @@ import { useCallback, useEffect, useState, useRef } from "react";
 import { type MediaDeviceFailure } from "livekit-client";
 import { useTheme } from "next-themes";
 import { ThemeColors } from "./ThemeConstants";
+import { VoiceChatConfigModal } from "./VoiceChatConfigModal";
+import { type LiveKitRoomConfig } from "~/types/livekit";
 // Import the tRPC client
 import { api } from "~/trpc/react";
 
@@ -38,6 +40,10 @@ export default function VoiceChat({
   const [agentState, setAgentState] = useState<AgentState>("disconnected");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showConfigModal, setShowConfigModal] = useState(true);
+  const [currentConfig, setCurrentConfig] = useState<LiveKitRoomConfig | null>(
+    null,
+  );
   const { theme, systemTheme } = useTheme();
   const currentTheme = theme === "system" ? systemTheme : theme;
   const isDark = currentTheme === "dark";
@@ -47,12 +53,14 @@ export default function VoiceChat({
   const isDisconnecting = useRef(false);
   const reconnectTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // Generate random username for the session
-  const username = useRef(`user-${Math.floor(Math.random() * 10000)}`).current;
-
   // Use the tRPC hook properly - this creates the query but doesn't execute it yet
   const livekitTokenQuery = api.livekit.getToken.useQuery(
-    { room: "agro-assistant", username },
+    {
+      room: currentConfig
+        ? btoa(JSON.stringify(currentConfig))
+        : "default-room",
+      username: currentConfig?.userId ?? "default-user",
+    },
     { enabled: false }, // Don't run automatically
   );
 
@@ -67,6 +75,22 @@ export default function VoiceChat({
     },
     [onAgentStateChange],
   );
+
+  // Handle modal submission
+  const handleConfigSubmit = useCallback(
+    (roomName: string, config: LiveKitRoomConfig) => {
+      setCurrentConfig(config);
+      setShowConfigModal(false);
+      // Connection will be triggered by useEffect when currentConfig changes
+    },
+    [],
+  );
+
+  // Handle modal close
+  const handleConfigModalClose = useCallback(() => {
+    setShowConfigModal(false);
+    onClose(); // Close the entire voice chat if user cancels configuration
+  }, [onClose]);
 
   // Clean up any pending reconnection timers on unmount
   useEffect(() => {
@@ -111,11 +135,12 @@ export default function VoiceChat({
     }
   }, [livekitTokenQuery]);
 
-  // Connect once on component mount
+  // Connect once we have a configuration
   useEffect(() => {
-    void fetchToken();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    if (currentConfig && !hasConnected.current) {
+      void fetchToken();
+    }
+  }, [currentConfig, fetchToken]);
 
   // Complete disconnect handler that properly cleans up state
   const handleDisconnect = useCallback(() => {
@@ -155,6 +180,17 @@ export default function VoiceChat({
       void fetchToken();
     }, 500);
   }, [fetchToken]);
+
+  // Show configuration modal first
+  if (showConfigModal) {
+    return (
+      <VoiceChatConfigModal
+        isOpen={showConfigModal}
+        onClose={handleConfigModalClose}
+        onSubmit={handleConfigSubmit}
+      />
+    );
+  }
 
   if (error) {
     return (
