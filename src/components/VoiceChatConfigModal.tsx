@@ -85,68 +85,68 @@ const ModelToggleButton = ({
   return (
     <motion.button
       onClick={() => setIsEnabled(!isEnabled)}
-      className="relative flex w-full flex-col items-center overflow-hidden p-0 backdrop-blur-sm transition-all duration-300"
+      className="relative flex w-full flex-col items-center overflow-hidden p-0 backdrop-blur-sm transition-all duration-200 ease-out" // Faster transition
       style={{
-        height: "70px", // Reduced height from 100px
+        height: "75px", // Slightly reduced height
         clipPath:
-          "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))", // Reduced polygon cuts
+          "polygon(0 0, calc(100% - 3px) 0, 100% 3px, 100% 100%, 3px 100%, 0 calc(100% - 3px))", // Sharper cut (was 4px)
         backgroundColor: isEnabled
-          ? `${ThemeColors.accent}15`
+          ? `${ThemeColors.accent}10` // Less intense background
           : isDark
-            ? "rgba(255,255,255,0.03)"
-            : "rgba(0,0,0,0.03)",
+            ? "rgba(255,255,255,0.02)" // More subtle background
+            : "rgba(0,0,0,0.02)",
         border: `1px solid ${
           isEnabled
-            ? ThemeColors.accent
+            ? `${ThemeColors.accent}B3` // Slightly more opaque border when enabled
             : isDark
-              ? "rgba(255,255,255,0.1)"
-              : "rgba(0,0,0,0.1)"
+              ? "rgba(255,255,255,0.08)" // Subtler border
+              : "rgba(0,0,0,0.08)"
         }`,
       }}
       whileHover={{
         backgroundColor: isEnabled
-          ? `${ThemeColors.accent}25`
+          ? `${ThemeColors.accent}20` // Consistent hover
           : isDark
-            ? "rgba(255,255,255,0.06)"
-            : "rgba(0,0,0,0.06)",
-        scale: 1.02,
-        boxShadow: `0 8px 20px ${isEnabled ? `${ThemeColors.accent}30` : "rgba(0,0,0,0.1)"}`, // Reduced shadow
+            ? "rgba(255,255,255,0.05)"
+            : "rgba(0,0,0,0.05)",
+        scale: 1.015, // Slightly less scale
+        boxShadow: `0 6px 15px ${isEnabled ? `${ThemeColors.accent}25` : "rgba(0,0,0,0.08)"}`,
       }}
-      whileTap={{ scale: 0.98 }}
+      whileTap={{ scale: 0.985 }} // Slightly less tap scale
     >
       {/* Glass accent line */}
       <div
-        className="absolute left-0 right-0 top-0 h-[1px]" // Reduced from 2px
+        className="absolute left-0 right-0 top-0 h-px" // Thinner line
         style={{
           background: isEnabled
-            ? `linear-gradient(90deg, transparent, ${ThemeColors.accent}, transparent)`
-            : "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
+            ? `linear-gradient(90deg, transparent, ${ThemeColors.accent}80, transparent)` // Subtler gradient
+            : "linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)",
         }}
       />
 
       {/* Content wrapper */}
-      <div className="flex h-full w-full flex-col items-center justify-between p-3">
+      <div className="flex h-full w-full flex-col items-center justify-between p-2.5">
         {" "}
-        {/* Reduced padding from p-5 */}
+        {/* Adjusted padding */}
         {/* Icon */}
         <motion.div
-          className="mb-2 flex h-10 w-10 items-center justify-center rounded-full" // Reduced from h-16 w-16 and mb-3
+          className="mb-1 flex h-9 w-9 items-center justify-center rounded-full" // Slightly smaller icon container
           style={{
             background: isEnabled
-              ? `radial-gradient(circle, ${ThemeColors.accent}25 0%, ${ThemeColors.accent}05 70%)`
+              ? `radial-gradient(circle, ${ThemeColors.accent}20 0%, ${ThemeColors.accent}03 70%)` // Subtler gradient
               : "transparent",
           }}
           animate={{
-            scale: isEnabled ? [1, 1.05, 1] : 1,
+            scale: isEnabled ? [1, 1.03, 1] : 1, // Less pronounced animation
           }}
           transition={{
             repeat: isEnabled ? Infinity : 0,
-            duration: 3,
+            duration: 3.5, // Slightly slower for subtlety
             ease: "easeInOut",
           }}
         >
           <span
-            className="text-lg"
+            className="text-base" // Slightly smaller icon via text size
             style={{ color: isEnabled ? ThemeColors.accent : undefined }}
           >
             {icon}
@@ -154,43 +154,42 @@ const ModelToggleButton = ({
         </motion.div>
         {/* Text */}
         <div className="w-full text-center">
-          {" "}
-          <div className="text-[10px] font-medium">{label}</div>
+          <div className="text-[11px] font-medium">{label}</div>
           {selectedModel && isEnabled && (
-            <div className="mt-0.5 max-w-full truncate px-1 text-[8px] opacity-70">
+            <div className="mt-0.5 max-w-full truncate px-1 text-[8px] opacity-60">
               {selectedModel}
             </div>
           )}
         </div>
         {/* Toggle switch */}
-        <motion.div className="relative mt-2 h-4 w-8">
+        <motion.div className="relative mt-1.5 h-4 w-8">
           {" "}
-          {/* Reduced from h-6 w-12 and mt-3 */}
+          {/* More compact toggle */}
           <motion.div
             className="absolute inset-0"
             style={{
               clipPath:
-                "polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px))", // Reduced polygon cuts
+                "polygon(0 0, calc(100% - 3px) 0, 100% 3px, 100% 100%, 3px 100%, 0 calc(100% - 3px))", // Sharper cut
               backgroundColor: isEnabled
-                ? `${ThemeColors.accent}30`
-                : "rgba(128,128,128,0.2)",
-              border: `1px solid ${isEnabled ? ThemeColors.accent : "rgba(128,128,128,0.3)"}`,
+                ? `${ThemeColors.accent}25` // Subtler background
+                : "rgba(128,128,128,0.15)",
+              border: `1px solid ${isEnabled ? `${ThemeColors.accent}B3` : "rgba(128,128,128,0.2)"}`,
             }}
           >
             <motion.div
-              className="absolute top-0.5 h-3 w-3" // Reduced from h-5 w-5
+              className="absolute top-px h-3 w-3" // Adjusted size for h-4 parent
               style={{
                 clipPath:
-                  "polygon(0 0, calc(100% - 2px) 0, 100% 2px, 100% 100%, 2px 100%, 0 calc(100% - 2px))",
-                backgroundColor: isEnabled ? ThemeColors.accent : "#6B7280",
+                  "polygon(0 0, calc(100% - 1px) 0, 100% 1px, 100% 100%, 1px 100%, 0 calc(100% - 1px))", // Sharper cut (was 1.5px)
+                backgroundColor: isEnabled ? ThemeColors.accent : "#888", // Lighter grey for off state
               }}
               animate={{
-                x: isEnabled ? 16 : 2, // Reduced from 24 to 16
+                x: isEnabled ? 18 : 1.5, // Adjusted travel for w-8, knob w-3
               }}
               transition={{
                 type: "spring",
-                stiffness: 500,
-                damping: 30,
+                stiffness: 600, // Snappier animation
+                damping: 25,
               }}
             />
           </motion.div>
@@ -224,76 +223,75 @@ const CustomDropdown = ({
 
   return (
     <div className="relative">
-      {" "}
-      <label className="mb-2 flex items-center gap-1.5 text-xs font-medium">
+      <label className="mb-1.5 flex items-center gap-1.5 text-[13px] font-medium">
+        {" "}
+        {/* Slightly smaller label */}
         {icon}
         {label}
       </label>
       <motion.button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between border bg-transparent px-3 py-2 text-left text-xs backdrop-blur-sm transition-all duration-300 focus:scale-[1.01] focus:outline-none"
+        className="flex w-full items-center justify-between border bg-transparent px-3.5 py-2 text-left text-[13px] backdrop-blur-sm transition-all duration-200 ease-out focus:outline-none" // Adjusted padding, text, transition
         style={{
           clipPath:
-            "polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px))", // Reduced polygon cuts
+            "polygon(0 0, calc(100% - 3px) 0, 100% 3px, 100% 100%, 3px 100%, 0 calc(100% - 3px))", // Sharper cut
           borderColor: isDark
             ? isOpen
-              ? "rgba(255,255,255,0.3)"
-              : "rgba(255,255,255,0.1)"
+              ? "rgba(255,255,255,0.25)"
+              : "rgba(255,255,255,0.08)" // Subtler border
             : isOpen
-              ? "rgba(0,0,0,0.3)"
-              : "rgba(0,0,0,0.1)",
+              ? "rgba(0,0,0,0.25)"
+              : "rgba(0,0,0,0.08)",
           color: isDark ? "white" : "black",
         }}
         whileHover={{
-          borderColor: isDark ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)",
+          borderColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.15)", // Subtler hover
+          scale: 1.01, // Less scale
         }}
       >
         <span
           className={
-            value ? undefined : isDark ? "text-white/50" : "text-black/50"
+            value ? undefined : isDark ? "text-white/40" : "text-black/40" // More subtle placeholder
           }
         >
           {value ? formatOptionLabel(value) : placeholder}
         </span>
         <motion.div
           animate={{ rotate: isOpen ? 180 : 0 }}
-          transition={{ duration: 0.2 }}
+          transition={{ duration: 0.15 }} // Faster rotate
         >
-          <ChevronDown size={12} /> {/* Reduced from 16 */}
+          <ChevronDown size={13} /> {/* Slightly smaller icon */}
         </motion.div>
       </motion.button>
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -10, scale: 0.95 }}
+            initial={{ opacity: 0, y: -8, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
-            className="absolute left-0 right-0 top-full z-10 mt-1.5 max-h-40 overflow-auto"
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ duration: 0.15, ease: "easeOut" }} // Faster animation
+            className="absolute left-0 right-0 top-full z-10 mt-1 max-h-44 overflow-auto" // Reduced margin, adjusted max-h
             style={{
               clipPath:
-                "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))", // Reduced polygon cuts
+                "polygon(0 0, calc(100% - 3px) 0, 100% 3px, 100% 100%, 3px 100%, 0 calc(100% - 3px))", // Sharper cut
               background: isDark
-                ? "linear-gradient(180deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.90) 100%)"
-                : "linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.90) 100%)",
-              border: `1px solid ${ThemeColors.accent}20`,
-              backdropFilter: "blur(20px)",
+                ? "linear-gradient(180deg, rgba(10,10,10,0.95) 0%, rgba(5,5,5,0.90) 100%)" // Darker, more solid background
+                : "linear-gradient(180deg, rgba(250,250,250,0.95) 0%, rgba(245,245,245,0.90) 100%)",
+              border: `1px solid ${ThemeColors.accent}1A`,
+              backdropFilter: "blur(16px)", // Slightly less blur
               boxShadow: isDark
-                ? `0 8px 20px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05)` // Reduced shadow
-                : `0 8px 20px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.9)`, // Reduced shadow
+                ? `0 6px 15px rgba(0,0,0,0.3), 0 0 0 1px rgba(255,255,255,0.04)` // Subtler shadow
+                : `0 6px 15px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.03)`,
             }}
           >
-            {/* Scrollable options container */}
-            <div className="py-1.5">
-              {" "}
-              {/* Reduced from py-2 */}
+            <div className="py-1">
               {options.map((option, index) => (
                 <motion.button
                   key={option}
                   type="button"
                   onClick={() => handleSelect(option)}
-                  className="flex w-full items-center justify-between px-3 py-2 text-left text-xs transition-all duration-200"
+                  className="flex w-full items-center justify-between px-3.5 py-2 text-left text-[13px] transition-all duration-150 ease-out" // Adjusted padding, text, transition
                   style={{
                     backgroundColor:
                       value === option
@@ -303,36 +301,36 @@ const CustomDropdown = ({
                       value === option
                         ? ThemeColors.accent
                         : isDark
-                          ? "white"
-                          : "black",
+                          ? "rgba(255,255,255,0.85)" // Brighter text for options
+                          : "rgba(0,0,0,0.85)",
                   }}
                   whileHover={{
                     backgroundColor:
                       value === option
                         ? `${ThemeColors.accent}20`
                         : isDark
-                          ? "rgba(255,255,255,0.05)"
-                          : "rgba(0,0,0,0.05)",
+                          ? "rgba(255,255,255,0.04)"
+                          : "rgba(0,0,0,0.04)",
                   }}
-                  initial={{ opacity: 0, x: -10 }}
+                  initial={{ opacity: 0, x: -8 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.02 }}
+                  transition={{ delay: index * 0.015, duration: 0.15 }} // Faster stagger
                 >
                   <span className="font-medium">
                     {formatOptionLabel(option)}
                   </span>
                   {value === option && (
                     <motion.div
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
                       transition={{
                         type: "spring",
-                        stiffness: 300,
+                        stiffness: 400,
                         damping: 20,
+                        duration: 0.15,
                       }}
                     >
-                      <Check size={12} style={{ color: ThemeColors.accent }} />{" "}
-                      {/* Reduced from 14 */}
+                      <Check size={13} style={{ color: ThemeColors.accent }} />
                     </motion.div>
                   )}
                 </motion.button>
@@ -351,9 +349,10 @@ const CustomDropdown = ({
       </AnimatePresence>
       {error && (
         <motion.p
-          className="mt-1 text-[10px] text-red-400"
-          initial={{ opacity: 0, y: -5 }}
+          className="mt-1 text-[11px] text-red-400/90" // Smaller, slightly less opaque error
+          initial={{ opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.15 }}
         >
           {error}
         </motion.p>
@@ -381,71 +380,72 @@ const PersonaButton = ({
   return (
     <motion.button
       onClick={onClick}
-      className="relative flex w-full flex-col items-center overflow-hidden p-0 backdrop-blur-sm transition-all duration-300"
+      className="relative flex w-full flex-col items-center overflow-hidden p-0 backdrop-blur-sm transition-all duration-200 ease-out" // Faster transition
       style={{
-        height: "80px",
+        height: "80px", // Slightly reduced height
         clipPath:
-          "polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px))",
+          "polygon(0 0, calc(100% - 3px) 0, 100% 3px, 100% 100%, 3px 100%, 0 calc(100% - 3px))", // Sharper cut
         backgroundColor: isSelected
-          ? `${ThemeColors.accent}15`
+          ? `${ThemeColors.accent}10` // Less intense background
           : isDark
-            ? "rgba(255,255,255,0.03)"
-            : "rgba(0,0,0,0.03)",
+            ? "rgba(255,255,255,0.02)"
+            : "rgba(0,0,0,0.02)",
         border: `1px solid ${
           isSelected
-            ? ThemeColors.accent
+            ? `${ThemeColors.accent}B3`
             : isDark
-              ? "rgba(255,255,255,0.1)"
-              : "rgba(0,0,0,0.1)"
+              ? "rgba(255,255,255,0.08)"
+              : "rgba(0,0,0,0.08)"
         }`,
       }}
       whileHover={{
         backgroundColor: isSelected
-          ? `${ThemeColors.accent}25`
+          ? `${ThemeColors.accent}20`
           : isDark
-            ? "rgba(255,255,255,0.06)"
-            : "rgba(0,0,0,0.06)",
-        scale: 1.02,
-        boxShadow: `0 8px 20px ${isSelected ? `${ThemeColors.accent}30` : "rgba(0,0,0,0.1)"}`,
+            ? "rgba(255,255,255,0.05)"
+            : "rgba(0,0,0,0.05)",
+        scale: 1.015,
+        boxShadow: `0 6px 15px ${isSelected ? `${ThemeColors.accent}25` : "rgba(0,0,0,0.08)"}`,
       }}
-      whileTap={{ scale: 0.98 }}
+      whileTap={{ scale: 0.985 }}
     >
       {/* Glass accent line */}
       <div
-        className="absolute left-0 right-0 top-0 h-[1px]"
+        className="absolute left-0 right-0 top-0 h-px"
         style={{
           background: isSelected
-            ? `linear-gradient(90deg, transparent, ${ThemeColors.accent}, transparent)`
-            : "linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)",
+            ? `linear-gradient(90deg, transparent, ${ThemeColors.accent}80, transparent)`
+            : "linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)",
         }}
       />
 
       {/* Content wrapper */}
-      <div className="flex h-full w-full flex-col items-center justify-center gap-1.5 p-2">
+      <div className="flex h-full w-full flex-col items-center justify-center gap-1.5 p-2.5">
+        {" "}
+        {/* Adjusted gap and padding */}
         <motion.div
-          className="flex h-8 w-8 items-center justify-center rounded-full"
+          className="flex h-9 w-9 items-center justify-center rounded-full" // Slightly smaller icon container
           style={{
             background: isSelected
-              ? `radial-gradient(circle, ${ThemeColors.accent}25 0%, ${ThemeColors.accent}05 70%)`
+              ? `radial-gradient(circle, ${ThemeColors.accent}20 0%, ${ThemeColors.accent}03 70%)`
               : "transparent",
           }}
           animate={{
-            scale: isSelected ? [1, 1.05, 1] : 1,
+            scale: isSelected ? [1, 1.03, 1] : 1,
           }}
           transition={{
             repeat: isSelected ? Infinity : 0,
-            duration: 3,
+            duration: 3.5,
             ease: "easeInOut",
           }}
         >
           <IconComponent
-            size={16}
+            size={18} // Slightly smaller icon
             style={{ color: isSelected ? ThemeColors.accent : undefined }}
           />
         </motion.div>
-
         <div className="text-center">
-          <div className="text-[10px] font-medium">{persona.title}</div>
+          <div className="text-[11px] font-medium">{persona.title}</div>
         </div>
       </div>
     </motion.button>
@@ -560,12 +560,12 @@ export const VoiceChatConfigModal = ({
   };
 
   const formFieldClasses = `
-    w-full px-4 py-3 bg-transparent border transition-all duration-300 
-    focus:outline-none focus:scale-[1.01] backdrop-blur-sm
+    w-full px-3.5 py-2 bg-transparent border text-[13px] transition-all duration-200 ease-out 
+    focus:outline-none focus:scale-[1.005] backdrop-blur-sm
     ${
       isDark
-        ? "border-white/10 hover:border-white/20 focus:border-white/30 text-white placeholder-white/50"
-        : "border-black/10 hover:border-black/20 focus:border-black/30 text-black placeholder-black/50"
+        ? "border-white/08 hover:border-white/15 focus:border-white/25 text-white placeholder-white/40"
+        : "border-black/08 hover:border-black/15 focus:border-black/25 text-black placeholder-black/40"
     }
   `;
 
@@ -588,131 +588,139 @@ export const VoiceChatConfigModal = ({
           onClick={(e) => e.target === e.currentTarget && onClose()}
         >
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ type: "spring", duration: 0.6, bounce: 0.1 }}
+            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            transition={{ type: "spring", duration: 0.5, bounce: 0.05 }} // Faster, less bounce
             className="relative my-8 w-full max-w-3xl"
             onMouseMove={handleMouseMove}
             style={{
               clipPath:
-                "polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px))",
+                "polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px))", // Sharper cut (was 8px)
               background: isDark
-                ? "linear-gradient(180deg, rgba(0,0,0,0.95) 0%, rgba(0,0,0,0.90) 100%)"
-                : "linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.90) 100%)",
-              border: `1px solid ${ThemeColors.accent}30`,
+                ? "linear-gradient(180deg, rgba(12,12,12,0.92) 0%, rgba(8,8,8,0.88) 100%)" // Slightly more transparent, darker
+                : "linear-gradient(180deg, rgba(252,252,252,0.92) 0%, rgba(248,248,248,0.88) 100%)",
+              border: `1px solid ${ThemeColors.accent}1A`, // Subtler border (was 26)
               boxShadow: isDark
-                ? `0 25px 50px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.05), 0 0 20px ${ThemeColors.accent}15`
-                : `0 25px 50px rgba(0,0,0,0.15), 0 0 0 1px rgba(255,255,255,0.9), 0 0 20px ${ThemeColors.accent}10`,
+                ? `0 20px 40px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,255,255,0.04), 0 0 15px ${ThemeColors.accent}10` // Subtler shadow
+                : `0 20px 40px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.03), 0 0 15px ${ThemeColors.accent}0A`,
             }}
           >
             {/* Mouse follow effect */}
             <motion.div
-              className="pointer-events-none absolute inset-0 opacity-50"
+              className="pointer-events-none absolute inset-0 opacity-25" // Less opacity (was 0.40)
               style={{ background }}
             />
             {/* Grid pattern overlay */}
             <div
-              className="absolute inset-0 opacity-[0.03]"
+              className="absolute inset-0 opacity-[0.02]" // More subtle grid
               style={{
                 backgroundImage: isDark
-                  ? "linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)"
-                  : "linear-gradient(rgba(0,0,0,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.1) 1px, transparent 1px)",
-                backgroundSize: "8px 8px",
+                  ? "linear-gradient(rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.07) 1px, transparent 1px)"
+                  : "linear-gradient(rgba(0,0,0,0.07) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.07) 1px, transparent 1px)",
+                backgroundSize: "6px 6px", // Smaller grid size
               }}
             />
             {/* Accent line animations */}
-            <div className="absolute inset-0 overflow-hidden">
+            <div className="pointer-events-none absolute inset-0 overflow-hidden">
+              {" "}
+              {/* Added pointer-events-none */}
               <motion.div
-                className="absolute top-0 h-[1px] w-full"
+                className="absolute top-0 h-px w-full" // Thinner line
                 style={{
-                  background: `linear-gradient(90deg, transparent, ${ThemeColors.accent}60, transparent)`,
+                  background: `linear-gradient(90deg, transparent, ${ThemeColors.accent}40, transparent)`,
                 }}
                 animate={{
                   x: ["-100%", "100%"],
                 }}
                 transition={{
-                  duration: 3,
+                  duration: 3.5, // Slightly faster
                   repeat: Infinity,
                   ease: "linear",
                 }}
               />
               <motion.div
-                className="absolute bottom-0 h-[1px] w-full"
+                className="absolute bottom-0 h-px w-full" // Thinner line
                 style={{
-                  background: `linear-gradient(90deg, transparent, ${ThemeColors.accent}40, transparent)`,
+                  background: `linear-gradient(90deg, transparent, ${ThemeColors.accent}20, transparent)`,
                 }}
                 animate={{
                   x: ["100%", "-100%"],
                 }}
                 transition={{
-                  duration: 4,
+                  duration: 4.5, // Slightly faster
                   repeat: Infinity,
                   ease: "linear",
-                  delay: 1,
+                  delay: 0.5, // Shorter delay
                 }}
               />
             </div>{" "}
-            <div className="relative max-h-[calc(100vh-4rem)] overflow-y-auto p-5">
+            <div className="relative max-h-[calc(100vh-3.5rem)] overflow-y-auto p-4 md:p-5 lg:p-6">
+              {" "}
+              {/* Adjusted padding */}
               {/* Header */}
-              <div className="mb-5 flex items-start justify-between">
+              <div className="mb-5 flex items-start justify-between md:mb-6">
+                {" "}
+                {/* Adjusted margin */}
                 <div>
                   <motion.h2
-                    className="text-lg font-bold tracking-tight"
-                    initial={{ opacity: 0, y: 10 }}
+                    className="text-lg font-semibold tracking-tight md:text-xl" // Adjusted font weight and size
+                    initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.1 }}
+                    transition={{ delay: 0.05, duration: 0.3 }}
                   >
                     Voice Experience Setup
                   </motion.h2>
                   <motion.p
-                    className={`mt-1 text-xs ${isDark ? "text-white/60" : "text-black/60"}`}
-                    initial={{ opacity: 0, y: 10 }}
+                    className={`mt-0.5 text-[13px] ${isDark ? "text-white/50" : "text-black/50"}`} // Adjusted text size and opacity
+                    initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 }}
+                    transition={{ delay: 0.1, duration: 0.3 }}
                   >
                     Configure your personalized conversation preferences
                   </motion.p>
                 </div>
                 <motion.button
                   onClick={onClose}
-                  className="flex h-7 w-7 items-center justify-center transition-all duration-200"
+                  className="flex h-6 w-6 items-center justify-center transition-all duration-150 ease-out" // Smaller, faster transition
                   style={{
                     clipPath:
-                      "polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px))",
+                      "polygon(0 0, calc(100% - 3px) 0, 100% 3px, 100% 100%, 3px 100%, 0 calc(100% - 3px))", // Sharper cut
                     backgroundColor: isDark
-                      ? "rgba(255,255,255,0.05)"
-                      : "rgba(0,0,0,0.05)",
+                      ? "rgba(255,255,255,0.04)"
+                      : "rgba(0,0,0,0.04)",
                   }}
                   whileHover={{
-                    scale: 1.05,
+                    scale: 1.03,
                     backgroundColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "rgba(0,0,0,0.1)",
+                      ? "rgba(255,255,255,0.08)"
+                      : "rgba(0,0,0,0.08)",
                   }}
-                  whileTap={{ scale: 0.95 }}
-                  initial={{ opacity: 0, rotate: -90 }}
-                  animate={{ opacity: 1, rotate: 0 }}
-                  transition={{ delay: 0.3 }}
+                  whileTap={{ scale: 0.97 }}
+                  initial={{ opacity: 0, rotate: -60, scale: 0.8 }}
+                  animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                  transition={{ delay: 0.15, duration: 0.25, ease: "easeOut" }}
                 >
-                  <X size={16} />
+                  <X size={14} /> {/* Slightly smaller icon */}
                 </motion.button>
               </div>{" "}
               {/* Form */}{" "}
               <motion.div
-                className="grid grid-cols-1 gap-5 lg:grid-cols-2"
+                className="grid grid-cols-1 gap-3.5 md:gap-5 lg:grid-cols-2" // Adjusted gap
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
+                transition={{ delay: 0.1, duration: 0.3 }}
               >
                 {/* User ID */}
                 <motion.div
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, x: -15 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.3 }}
+                  transition={{ delay: 0.15, duration: 0.3, ease: "easeOut" }}
                 >
-                  <label className="mb-3 flex items-center gap-2 text-sm font-medium">
-                    <User size={14} style={{ color: iconColor }} />
+                  <label className="mb-1 flex items-center gap-1.5 text-[13px] font-medium">
+                    {" "}
+                    {/* Adjusted margin and text */}
+                    <User size={13} style={{ color: iconColor }} />
                     Session ID
                   </label>
                   <input
@@ -724,15 +732,16 @@ export const VoiceChatConfigModal = ({
                     className={formFieldClasses}
                     style={{
                       clipPath:
-                        "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))",
+                        "polygon(0 0, calc(100% - 3px) 0, 100% 3px, 100% 100%, 3px 100%, 0 calc(100% - 3px))", // Sharper cut (was 6px)
                     }}
                     placeholder="Enter your session identifier"
                   />
                   {errors.userId && (
                     <motion.p
-                      className="mt-2 text-xs text-red-400"
-                      initial={{ opacity: 0, y: -5 }}
+                      className="mt-1 text-[11px] text-red-400/90" // Adjusted styles
+                      initial={{ opacity: 0, y: -4 }}
                       animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.15 }}
                     >
                       {errors.userId}
                     </motion.p>
@@ -740,14 +749,16 @@ export const VoiceChatConfigModal = ({
                 </motion.div>
                 {/* User Name */}
                 <motion.div
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, x: -15 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.4 }}
+                  transition={{ delay: 0.2, duration: 0.3, ease: "easeOut" }}
                 >
-                  <label className="mb-3 flex items-center gap-2 text-sm font-medium">
-                    <MessageCircle size={14} style={{ color: iconColor }} />
+                  <label className="mb-1 flex items-center gap-1.5 text-[13px] font-medium">
+                    {" "}
+                    {/* Adjusted margin and text */}
+                    <MessageCircle size={13} style={{ color: iconColor }} />
                     Display Name{" "}
-                    <span className="text-xs opacity-60">(Optional)</span>
+                    <span className="text-[11px] opacity-50">(Optional)</span>
                   </label>
                   <input
                     type="text"
@@ -758,20 +769,21 @@ export const VoiceChatConfigModal = ({
                     className={formFieldClasses}
                     style={{
                       clipPath:
-                        "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))",
+                        "polygon(0 0, calc(100% - 3px) 0, 100% 3px, 100% 100%, 3px 100%, 0 calc(100% - 3px))", // Sharper cut (was 6px)
                     }}
                     placeholder="How should we address you?"
                   />
                 </motion.div>{" "}
                 {/* Language Selection */}
                 <motion.div
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, x: -15 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 }}
+                  transition={{ delay: 0.25, duration: 0.3, ease: "easeOut" }}
+                  className="lg:col-span-1"
                 >
                   <CustomDropdown
                     label="Conversation Language"
-                    icon={<Globe size={14} style={{ color: iconColor }} />}
+                    icon={<Globe size={13} style={{ color: iconColor }} />}
                     value={config.language}
                     options={SUPPORTED_LANGUAGES}
                     onChange={(value) =>
@@ -786,13 +798,14 @@ export const VoiceChatConfigModal = ({
                 </motion.div>
                 {/* Voice Model */}
                 <motion.div
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, x: -15 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.6 }}
+                  transition={{ delay: 0.3, duration: 0.3, ease: "easeOut" }}
+                  className="lg:col-span-1"
                 >
                   <CustomDropdown
                     label="Voice Character"
-                    icon={<Mic size={14} style={{ color: iconColor }} />}
+                    icon={<Mic size={13} style={{ color: iconColor }} />}
                     value={config.voice}
                     options={VOICE_MODELS}
                     onChange={(value) =>
@@ -804,45 +817,49 @@ export const VoiceChatConfigModal = ({
                 </motion.div>{" "}
                 {/* Real-Time Mode Toggle */}{" "}
                 <motion.div
-                  className="flex items-center justify-between"
-                  initial={{ opacity: 0, x: -20 }}
+                  className="flex items-center justify-between lg:col-span-1" // Ensure it takes full width on smaller, half on large
+                  initial={{ opacity: 0, x: -15 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.7 }}
+                  transition={{ delay: 0.35, duration: 0.3, ease: "easeOut" }}
                 >
-                  <label className="flex items-center gap-1.5 text-xs font-medium">
-                    <Radio size={12} style={{ color: iconColor }} />
+                  <label className="flex items-center gap-1.5 text-[13px] font-medium">
+                    <Radio size={13} style={{ color: iconColor }} />{" "}
+                    {/* Adjusted icon size */}
                     Real-Time Mode
-                    <span className="text-[10px] opacity-60">(RT Demo)</span>
+                    <span className="text-[11px] opacity-50">
+                      (RT Demo)
+                    </span>{" "}
+                    {/* Adjusted text size */}
                   </label>
                   <motion.button
                     onClick={() => setRtModeEnabled(!rtModeEnabled)}
-                    className="relative h-4 w-8 transition-all duration-300"
+                    className="relative h-5 w-10 transition-all duration-200 ease-out" // Adjusted size
                     style={{
                       clipPath:
-                        "polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px))",
+                        "polygon(0 0, calc(100% - 3px) 0, 100% 3px, 100% 100%, 3px 100%, 0 calc(100% - 3px))", // Sharper cut
                       backgroundColor: rtModeEnabled
-                        ? `${ThemeColors.accent}30`
-                        : "rgba(128,128,128,0.2)",
-                      border: `1px solid ${rtModeEnabled ? ThemeColors.accent : "rgba(128,128,128,0.3)"}`,
+                        ? `${ThemeColors.accent}25`
+                        : "rgba(128,128,128,0.15)",
+                      border: `1px solid ${rtModeEnabled ? `${ThemeColors.accent}B3` : "rgba(128,128,128,0.2)"}`,
                     }}
-                    whileTap={{ scale: 0.95 }}
+                    whileTap={{ scale: 0.96 }}
                   >
                     <motion.div
-                      className="absolute top-0.5 h-3 w-3"
+                      className="absolute top-px h-4 w-4" // Adjusted size
                       style={{
                         clipPath:
-                          "polygon(0 0, calc(100% - 2px) 0, 100% 2px, 100% 100%, 2px 100%, 0 calc(100% - 2px))",
+                          "polygon(0 0, calc(100% - 1.5px) 0, 100% 1.5px, 100% 100%, 1.5px 100%, 0 calc(100% - 1.5px))", // Sharper cut (was 2px)
                         backgroundColor: rtModeEnabled
                           ? ThemeColors.accent
-                          : "#6B7280",
+                          : "#888",
                       }}
                       animate={{
-                        x: rtModeEnabled ? 16 : 2,
+                        x: rtModeEnabled ? 22 : 1.5, // Adjusted travel for w-10, knob w-4
                       }}
                       transition={{
                         type: "spring",
-                        stiffness: 500,
-                        damping: 30,
+                        stiffness: 600,
+                        damping: 25,
                       }}
                     />
                   </motion.button>
@@ -853,20 +870,20 @@ export const VoiceChatConfigModal = ({
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.3 }}
+                    transition={{ duration: 0.25, ease: "easeOut" }} // Faster transition
                     className="col-span-full"
                   >
                     <div
-                      className="rounded border p-3"
+                      className="rounded border p-2.5 text-[13px]" // Adjusted padding and text
                       style={{
                         clipPath:
-                          "polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px))",
-                        backgroundColor: `${ThemeColors.accent}10`,
-                        border: `1px solid ${ThemeColors.accent}30`,
+                          "polygon(0 0, calc(100% - 3px) 0, 100% 3px, 100% 100%, 3px 100%, 0 calc(100% - 3px))", // Sharper cut
+                        backgroundColor: `${ThemeColors.accent}0A`, // More subtle background
+                        border: `1px solid ${ThemeColors.accent}26`,
                       }}
                     >
                       <p
-                        className={`text-xs ${isDark ? "text-white/80" : "text-black/80"}`}
+                        className={` ${isDark ? "text-white/70" : "text-black/70"}`} // Adjusted opacity
                       >
                         <strong>Real-Time Mode:</strong> Uses optimized
                         processing for ultra-low latency conversations. Advanced
@@ -878,22 +895,27 @@ export const VoiceChatConfigModal = ({
                 )}
                 {/* Assistant Persona Selection */}
                 <motion.div
-                  initial={{ opacity: 0, x: -20 }}
+                  initial={{ opacity: 0, x: -15 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.8 }}
+                  transition={{ delay: 0.4, duration: 0.3, ease: "easeOut" }}
+                  className="lg:col-span-2"
                 >
-                  <div className="mb-3">
-                    <label className="flex items-center gap-1.5 text-xs font-medium">
-                      <FileText size={12} style={{ color: iconColor }} />
+                  <div className="mb-1.5">
+                    {" "}
+                    {/* Adjusted margin */}
+                    <label className="flex items-center gap-1.5 text-[13px] font-medium">
+                      <FileText size={13} style={{ color: iconColor }} />
                       Select Assistant Persona
                     </label>
                     <p
-                      className={`mt-1 text-[10px] ${isDark ? "text-white/50" : "text-black/50"}`}
+                      className={`mt-0.5 text-[11px] ${isDark ? "text-white/40" : "text-black/40"}`} // Adjusted text and opacity
                     >
                       Choose a specialized AI assistant for your conversation
                     </p>
                   </div>
-                  <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
+                  <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 md:grid-cols-4">
+                    {" "}
+                    {/* Adjusted gap */}
                     {(
                       Object.keys(ASSISTANT_PERSONAS) as AssistantPersona[]
                     ).map((key) => {
@@ -920,17 +942,21 @@ export const VoiceChatConfigModal = ({
                     })}
                   </div>
                   {/* Custom Instructions Text Area */}
-                  <div className="mt-4 border-t border-[rgba(128,128,128,0.2)] pt-4">
-                    <div className="mb-2">
-                      <label className="flex items-center gap-1.5 text-xs font-medium">
-                        <FileText size={12} style={{ color: iconColor }} />
+                  <div className="mt-3.5 border-t border-[rgba(128,128,128,0.15)] pt-3.5">
+                    {" "}
+                    {/* Adjusted margin and border */}
+                    <div className="mb-1">
+                      {" "}
+                      {/* Adjusted margin */}
+                      <label className="flex items-center gap-1.5 text-[13px] font-medium">
+                        <FileText size={13} style={{ color: iconColor }} />
                         Custom Instructions
-                        <span className="text-[10px] opacity-60">
+                        <span className="text-[11px] opacity-50">
                           (Optional)
                         </span>
                       </label>
                       <p
-                        className={`mt-1 text-[10px] ${isDark ? "text-white/50" : "text-black/50"}`}
+                        className={`mt-0.5 text-[11px] ${isDark ? "text-white/40" : "text-black/40"}`} // Adjusted text and opacity
                       >
                         Or provide your own specific instructions for the AI
                         assistant
@@ -952,15 +978,15 @@ export const VoiceChatConfigModal = ({
                           instructions: e.target.value,
                         })
                       }
-                      className={`w-full resize-none rounded-none border bg-transparent px-3 py-2 text-xs backdrop-blur-sm transition-all duration-300 placeholder:text-[10px] placeholder:opacity-50 focus:outline-none focus:ring-0 ${
+                      className={`w-full resize-none rounded-none border bg-transparent px-3 py-1.5 text-[13px] backdrop-blur-sm transition-all duration-200 ease-out placeholder:text-[12px] placeholder:opacity-40 focus:outline-none focus:ring-0 ${
                         isDark
-                          ? "border-white/10 text-white placeholder-white/50 hover:border-white/20 focus:border-white/30"
-                          : "border-black/10 text-black placeholder-black/50 hover:border-black/20 focus:border-black/30"
+                          ? "border-white/08 text-white placeholder-white/40 hover:border-white/15 focus:border-white/25"
+                          : "border-black/08 text-black placeholder-black/40 hover:border-black/15 focus:border-black/25"
                       }`}
                       style={{
-                        height: "60px",
+                        height: "80px", // Adjusted height (h-20)
                         clipPath:
-                          "polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px))",
+                          "polygon(0 0, calc(100% - 3px) 0, 100% 3px, 100% 100%, 3px 100%, 0 calc(100% - 3px))", // Sharper cut
                       }}
                       placeholder="Enter custom instructions for how the AI should behave..."
                     />
@@ -969,48 +995,50 @@ export const VoiceChatConfigModal = ({
                 {/* Advanced Configuration Section - Hidden in RT Mode */}
                 {!rtModeEnabled && (
                   <motion.div
-                    initial={{ opacity: 0, x: -20 }}
+                    initial={{ opacity: 0, x: -15 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.9 }}
+                    transition={{ delay: 0.45, duration: 0.3, ease: "easeOut" }}
+                    className="lg:col-span-2"
                   >
-                    <div className="mb-4 flex items-center justify-between">
+                    <div className="mb-2.5 flex items-center justify-between">
                       {" "}
-                      <label className="flex items-center gap-1.5 text-xs font-medium">
-                        <Settings size={12} style={{ color: iconColor }} />
+                      {/* Adjusted margin */}
+                      <label className="flex items-center gap-1.5 text-[13px] font-medium">
+                        <Settings size={13} style={{ color: iconColor }} />
                         Advanced Configuration
-                        <span className="text-[10px] opacity-60">
+                        <span className="text-[11px] opacity-50">
                           (Optional)
                         </span>
                       </label>
                       <motion.button
                         onClick={() => setAdvancedEnabled(!advancedEnabled)}
-                        className="relative h-4 w-8 transition-all duration-300"
+                        className="relative h-5 w-10 transition-all duration-200 ease-out" // Adjusted size
                         style={{
                           clipPath:
-                            "polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px))",
+                            "polygon(0 0, calc(100% - 3px) 0, 100% 3px, 100% 100%, 3px 100%, 0 calc(100% - 3px))", // Sharper cut
                           backgroundColor: advancedEnabled
-                            ? `${ThemeColors.accent}30`
-                            : "rgba(128,128,128,0.2)",
-                          border: `1px solid ${advancedEnabled ? ThemeColors.accent : "rgba(128,128,128,0.3)"}`,
+                            ? `${ThemeColors.accent}25`
+                            : "rgba(128,128,128,0.15)",
+                          border: `1px solid ${advancedEnabled ? `${ThemeColors.accent}B3` : "rgba(128,128,128,0.2)"}`,
                         }}
-                        whileTap={{ scale: 0.95 }}
+                        whileTap={{ scale: 0.96 }}
                       >
                         <motion.div
-                          className="absolute top-0.5 h-3 w-3"
+                          className="absolute top-px h-4 w-4" // Adjusted size
                           style={{
                             clipPath:
-                              "polygon(0 0, calc(100% - 2px) 0, 100% 2px, 100% 100%, 2px 100%, 0 calc(100% - 2px))",
+                              "polygon(0 0, calc(100% - 1.5px) 0, 100% 1.5px, 100% 100%, 1.5px 100%, 0 calc(100% - 1.5px))", // Sharper cut (was 2px)
                             backgroundColor: advancedEnabled
                               ? ThemeColors.accent
-                              : "#6B7280",
+                              : "#888",
                           }}
                           animate={{
-                            x: advancedEnabled ? 16 : 2,
+                            x: advancedEnabled ? 22 : 1.5, // Adjusted travel
                           }}
                           transition={{
                             type: "spring",
-                            stiffness: 500,
-                            damping: 30,
+                            stiffness: 600,
+                            damping: 25,
                           }}
                         />
                       </motion.button>
@@ -1022,244 +1050,149 @@ export const VoiceChatConfigModal = ({
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: "auto" }}
                           exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="mb-4 space-y-4"
+                          transition={{ duration: 0.25, ease: "easeOut" }} // Faster transition
+                          className="grid grid-cols-1 gap-3.5 md:grid-cols-2 md:gap-5" // Adjusted gap
                         >
-                          <p
-                            className={`mb-4 text-sm ${isDark ? "text-white/60" : "text-black/60"}`}
-                          >
-                            Select optional AI models to use for this
-                            conversation. Default models will be used if none
-                            are selected.
-                          </p>{" "}
-                          {/* Model selection grid */}
-                          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                            {/* STT Model */}
-                            <ModelToggleButton
-                              label="Speech Recognition"
-                              icon={<Radio size={24} />}
-                              isEnabled={sttModelEnabled}
-                              setIsEnabled={(enabled) => {
-                                setSttModelEnabled(enabled);
-                                if (enabled && !config.stt_model) {
-                                  setConfig({
-                                    ...config,
-                                    stt_model: "whisper-large-v3-turbo",
-                                  });
-                                }
-                              }}
-                              selectedModel={config.stt_model ?? ""}
-                            />{" "}
-                            {/* LLM Model */}
-                            <ModelToggleButton
-                              label="Language Model"
-                              icon={<Brain size={24} />}
-                              isEnabled={llmModelEnabled}
-                              setIsEnabled={(enabled) => {
-                                setLlmModelEnabled(enabled);
-                                if (enabled && !config.llm_model) {
-                                  setConfig({
-                                    ...config,
-                                    llm_model: "llama-3.3-70b-versatile",
-                                  });
-                                }
-                              }}
-                              selectedModel={config.llm_model ?? ""}
-                            />{" "}
-                            {/* TTS Model */}
-                            <ModelToggleButton
-                              label="Voice Synthesis"
-                              icon={<Volume2 size={24} />}
-                              isEnabled={ttsModelEnabled}
-                              setIsEnabled={(enabled) => {
-                                setTtsModelEnabled(enabled);
-                                if (enabled && !config.tts_model) {
-                                  setConfig({
-                                    ...config,
-                                    tts_model: "gpt-4o-mini-tts",
-                                  });
-                                }
-                              }}
-                              selectedModel={config.tts_model ?? ""}
+                          {/* STT Model Toggle & Dropdown */}
+                          <ModelToggleButton
+                            label="STT Model"
+                            icon={<Volume2 size={18} />}
+                            isEnabled={sttModelEnabled}
+                            setIsEnabled={setSttModelEnabled}
+                            selectedModel={config.stt_model ?? ""}
+                          />
+                          {sttModelEnabled && (
+                            <CustomDropdown
+                              label="Select STT Model"
+                              icon={
+                                <Volume2
+                                  size={13}
+                                  style={{ color: iconColor }}
+                                />
+                              }
+                              value={config.stt_model ?? ""}
+                              options={STT_MODELS}
+                              onChange={(value) =>
+                                setConfig({ ...config, stt_model: value })
+                              }
+                              placeholder="Choose STT model"
                             />
-                          </div>
-                          {/* STT Model Selection */}
-                          <AnimatePresence>
-                            {sttModelEnabled && (
-                              <motion.div
-                                initial={{ opacity: 0, y: -10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                transition={{ duration: 0.2 }}
-                              >
-                                {" "}
-                                <div className="mt-4">
-                                  <CustomDropdown
-                                    label="Speech-to-Text Model"
-                                    icon={
-                                      <Radio
-                                        size={14}
-                                        style={{ color: iconColor }}
-                                      />
-                                    }
-                                    value={config.stt_model ?? ""}
-                                    options={STT_MODELS}
-                                    onChange={(value) =>
-                                      setConfig({ ...config, stt_model: value })
-                                    }
-                                    placeholder="Select a speech recognition model"
-                                  />
-                                  <p
-                                    className={`mt-2 text-xs ${isDark ? "text-white/50" : "text-black/50"}`}
-                                  >
-                                    Higher quality models provide more accurate
-                                    transcription at the cost of speed.
-                                  </p>
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                          {/* LLM Model Selection */}
-                          <AnimatePresence>
-                            {llmModelEnabled && (
-                              <motion.div
-                                initial={{ opacity: 0, y: -10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                transition={{ duration: 0.2 }}
-                              >
-                                {" "}
-                                <div className="mt-4">
-                                  <CustomDropdown
-                                    label="Language Model"
-                                    icon={
-                                      <Brain
-                                        size={14}
-                                        style={{ color: iconColor }}
-                                      />
-                                    }
-                                    value={config.llm_model ?? ""}
-                                    options={LLM_MODELS}
-                                    onChange={(value) =>
-                                      setConfig({ ...config, llm_model: value })
-                                    }
-                                    placeholder="Select a language model"
-                                  />
-                                  <p
-                                    className={`mt-2 text-xs ${isDark ? "text-white/50" : "text-black/50"}`}
-                                  >
-                                    Larger models offer more sophisticated
-                                    responses but may be slower.
-                                  </p>
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                          {/* TTS Model Selection */}
-                          <AnimatePresence>
-                            {ttsModelEnabled && (
-                              <motion.div
-                                initial={{ opacity: 0, y: -10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                transition={{ duration: 0.2 }}
-                              >
-                                {" "}
-                                <div className="mt-4">
-                                  <CustomDropdown
-                                    label="Text-to-Speech Model"
-                                    icon={
-                                      <Volume2
-                                        size={14}
-                                        style={{ color: iconColor }}
-                                      />
-                                    }
-                                    value={config.tts_model ?? ""}
-                                    options={TTS_MODELS}
-                                    onChange={(value) =>
-                                      setConfig({ ...config, tts_model: value })
-                                    }
-                                    placeholder="Select a speech synthesis model"
-                                  />
-                                  <p
-                                    className={`mt-2 text-xs ${isDark ? "text-white/50" : "text-black/50"}`}
-                                  >
-                                    HD models provide higher quality audio with
-                                    more natural intonation.
-                                  </p>
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>{" "}
+                          )}
+                          {/* LLM Model Toggle & Dropdown */}
+                          <ModelToggleButton
+                            label="LLM Model"
+                            icon={<Brain size={18} />}
+                            isEnabled={llmModelEnabled}
+                            setIsEnabled={setLlmModelEnabled}
+                            selectedModel={config.llm_model ?? ""}
+                          />
+                          {llmModelEnabled && (
+                            <CustomDropdown
+                              label="Select LLM Model"
+                              icon={
+                                <Brain size={13} style={{ color: iconColor }} />
+                              }
+                              value={config.llm_model ?? ""}
+                              options={LLM_MODELS}
+                              onChange={(value) =>
+                                setConfig({ ...config, llm_model: value })
+                              }
+                              placeholder="Choose LLM model"
+                            />
+                          )}
+                          {/* TTS Model Toggle & Dropdown */}
+                          <ModelToggleButton
+                            label="TTS Model"
+                            icon={<Mic size={18} />}
+                            isEnabled={ttsModelEnabled}
+                            setIsEnabled={setTtsModelEnabled}
+                            selectedModel={config.tts_model ?? ""}
+                          />
+                          {ttsModelEnabled && (
+                            <CustomDropdown
+                              label="Select TTS Model"
+                              icon={
+                                <Mic size={13} style={{ color: iconColor }} />
+                              }
+                              value={config.tts_model ?? ""}
+                              options={TTS_MODELS}
+                              onChange={(value) =>
+                                setConfig({ ...config, tts_model: value })
+                              }
+                              placeholder="Choose TTS model"
+                            />
+                          )}
                         </motion.div>
                       )}
                     </AnimatePresence>
                   </motion.div>
                 )}
-              </motion.div>{" "}
-              {/* Actions */}{" "}
+              </motion.div>
+              {/* Action Buttons */}
               <motion.div
-                className="mt-6 flex gap-3"
-                initial={{ opacity: 0, y: 20 }}
+                className="mt-6 flex flex-col items-center justify-end gap-2.5 pt-5 sm:flex-row md:mt-8" // Adjusted margin and gap
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.9 }}
+                transition={{ delay: 0.5, duration: 0.3, ease: "easeOut" }}
               >
                 <motion.button
                   onClick={onClose}
-                  className="flex-1 py-2 text-sm font-medium transition-all duration-300"
+                  className="w-full rounded-none border px-4 py-2 text-[13px] font-medium transition-all duration-200 ease-out sm:w-auto"
                   style={{
                     clipPath:
-                      "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))",
-                    backgroundColor: isDark
-                      ? "rgba(255,255,255,0.05)"
-                      : "rgba(0,0,0,0.05)",
+                      "polygon(0 0, calc(100% - 3px) 0, 100% 3px, 100% 100%, 3px 100%, 0 calc(100% - 3px))",
+                    borderColor: isDark
+                      ? "rgba(255,255,255,0.2)"
+                      : "rgba(0,0,0,0.2)",
                     color: isDark ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.7)",
+                    backgroundColor: "transparent",
                   }}
                   whileHover={{
-                    scale: 1.02,
-                    backgroundColor: isDark
-                      ? "rgba(255,255,255,0.1)"
-                      : "rgba(0,0,0,0.1)",
+                    borderColor: isDark
+                      ? "rgba(255,255,255,0.4)"
+                      : "rgba(0,0,0,0.4)",
+                    color: isDark ? "rgba(255,255,255,0.9)" : "rgba(0,0,0,0.9)",
+                    scale: 1.015,
                   }}
-                  whileTap={{ scale: 0.98 }}
+                  whileTap={{ scale: 0.985 }} // Less tap scale
                 >
                   Cancel
                 </motion.button>
                 <motion.button
                   onClick={handleSubmit}
-                  disabled={isSubmitting}
-                  className="flex flex-1 items-center justify-center gap-1 py-2 text-sm font-medium text-white transition-all duration-300"
+                  className="relative flex w-full items-center justify-center overflow-hidden rounded-none border border-transparent px-4 py-2 text-[13px] font-medium text-white transition-all duration-200 ease-out sm:w-auto"
                   style={{
                     clipPath:
-                      "polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 6px 100%, 0 calc(100% - 6px))",
-                    background: `linear-gradient(180deg, ${ThemeColors.accent}, ${ThemeColors.accent}CC)`,
-                    boxShadow: `0 8px 25px ${ThemeColors.accent}40, inset 0 1px 0 rgba(255,255,255,0.2)`,
-                    opacity: isSubmitting ? 0.7 : 1,
+                      "polygon(0 0, calc(100% - 3px) 0, 100% 3px, 100% 100%, 3px 100%, 0 calc(100% - 3px))",
+                    background: `linear-gradient(45deg, ${ThemeColors.accent}E6, ${ThemeColors.accent}B3)`, // Slightly less intense gradient
+                    boxShadow: `0 4px 12px ${ThemeColors.accent}30`, // Subtler shadow
                   }}
                   whileHover={{
-                    scale: isSubmitting ? 1 : 1.02,
-                    y: isSubmitting ? 0 : -1,
-                    boxShadow: isSubmitting
-                      ? undefined
-                      : `0 12px 30px ${ThemeColors.accent}50, inset 0 1px 0 rgba(255,255,255,0.2)`,
+                    scale: 1.015,
+                    boxShadow: `0 6px 16px ${ThemeColors.accent}40`,
                   }}
-                  whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
+                  whileTap={{ scale: 0.985 }}
+                  disabled={isSubmitting}
                 >
                   {isSubmitting ? (
-                    <motion.div
-                      className="h-4 w-4 rounded-full border-2 border-white border-t-transparent"
-                      animate={{ rotate: 360 }}
-                      transition={{
-                        duration: 1,
-                        repeat: Infinity,
-                        ease: "linear",
-                      }}
-                    />
+                    <div className="flex items-center">
+                      <motion.div
+                        className="mr-2 h-3.5 w-3.5 rounded-full border-2 border-white/50 border-t-white" // Adjusted spinner size
+                        animate={{ rotate: 360 }}
+                        transition={{
+                          loop: Infinity,
+                          ease: "linear",
+                          duration: 0.8,
+                        }}
+                      />
+                      Processing...
+                    </div>
                   ) : (
-                    <>
-                      <span>Launch Experience</span>
-                      <ArrowRight size={14} />
-                    </>
+                    <div className="flex items-center">
+                      Start Conversation
+                      <ArrowRight size={14} className="ml-1.5" />{" "}
+                      {/* Adjusted icon size */}
+                    </div>
                   )}
                 </motion.button>
               </motion.div>
