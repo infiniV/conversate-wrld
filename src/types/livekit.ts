@@ -29,13 +29,19 @@ export interface LiveKitRoomConfig {
    * @default "alloy"
    */
   voice: string;
-
   /**
    * Custom instructions for the agent
    * If present, overrides default instructions and changes greeting logic
    * @default undefined
    */
   instructions?: string;
+
+  /**
+   * Real-time mode flag
+   * When enabled, uses real-time processing and disables model selection
+   * @default false
+   */
+  rt?: boolean;
 
   /**
    * Speech-to-text model for voice recognition

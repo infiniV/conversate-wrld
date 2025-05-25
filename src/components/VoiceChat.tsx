@@ -12,9 +12,21 @@ import {
 import { useCallback, useEffect, useState, useRef } from "react";
 import { type MediaDeviceFailure } from "livekit-client";
 import { useTheme } from "next-themes";
+import {
+  Radio,
+  Globe,
+  Mic,
+  User,
+  Heart,
+  Stethoscope,
+  Shield,
+  Plane,
+  Car,
+  Settings,
+} from "lucide-react";
 import { ThemeColors } from "./ThemeConstants";
 import { VoiceChatConfigModal } from "./VoiceChatConfigModal";
-import { type LiveKitRoomConfig } from "~/types/livekit";
+import { type LiveKitRoomConfig, ASSISTANT_PERSONAS } from "~/types/livekit";
 // Import the tRPC client
 import { api } from "~/trpc/react";
 
@@ -264,7 +276,7 @@ export default function VoiceChat({
           video={false}
           onMediaDeviceFailure={onDeviceFailure}
           onDisconnected={handleDisconnect}
-          className="grid grid-rows-[2fr_1fr] items-center"
+          className="relative grid grid-rows-[2fr_1fr] items-center"
           // Use the token itself as the key to ensure proper re-render on new connections
           key={connectionDetails.participantToken}
         >
@@ -281,6 +293,9 @@ export default function VoiceChat({
           />
           <RoomAudioRenderer />
           <NoAgentNotification state={agentState} />
+          {currentConfig && agentState !== "disconnected" && (
+            <ConfigBar config={currentConfig} isDark={isDark} />
+          )}
         </LiveKitRoom>
       </main>
     </>
@@ -515,5 +530,213 @@ function NoAgentNotification({ state }: { state: AgentState }) {
         <p>No agent is available. Please try again later.</p>
       </div>
     </div>
+  );
+}
+
+// ConfigBar component to display current configuration
+function ConfigBar({
+  config,
+  isDark,
+}: {
+  config: LiveKitRoomConfig;
+  isDark: boolean;
+}) {
+  const getPersonaIcon = (instructions?: string) => {
+    if (!instructions) return null;
+
+    const persona = Object.values(ASSISTANT_PERSONAS).find((p) =>
+      instructions.includes(p.instruction),
+    );
+
+    if (!persona) return <Settings size={12} />;
+
+    const IconComponent = {
+      Heart,
+      Stethoscope,
+      Shield,
+      Plane,
+      Car,
+    }[persona.icon];
+
+    return IconComponent ? <IconComponent size={12} /> : <Settings size={12} />;
+  };
+
+  const getPersonaTitle = (instructions?: string) => {
+    if (!instructions) return null;
+
+    const persona = Object.values(ASSISTANT_PERSONAS).find((p) =>
+      instructions.includes(p.instruction),
+    );
+
+    return persona?.title ?? "Custom";
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 20 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="absolute bottom-6 left-1/2 z-20 -translate-x-1/2"
+    >
+      <motion.div
+        className="relative right-1/2 flex items-center gap-3 px-4 py-2 backdrop-blur-md"
+        style={{
+          background: isDark
+            ? "rgba(0, 0, 0, 0.7)"
+            : "rgba(255, 255, 255, 0.7)",
+          border: `1px solid ${isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"}`,
+          borderRadius: "24px",
+          boxShadow: isDark
+            ? "0 8px 24px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.05)"
+            : "0 8px 24px rgba(0,0,0,0.15), 0 1px 0 rgba(255,255,255,0.8)",
+        }}
+        whileHover={{
+          scale: 1.02,
+          transition: { duration: 0.2 },
+        }}
+      >
+        {/* RT Mode Badge */}
+        {config.rt && (
+          <motion.div
+            className="flex items-center gap-1 rounded-full px-2 py-1"
+            style={{
+              background: "rgba(239, 68, 68, 0.15)",
+              border: "1px solid rgba(239, 68, 68, 0.3)",
+            }}
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+          >
+            <Radio size={10} className="text-red-400" />
+            <span className="text-[10px] font-medium text-red-400">RT</span>
+          </motion.div>
+        )}
+
+        {/* Configuration Items */}
+        <div className="flex items-center gap-2">
+          {/* Language */}
+          <motion.div
+            className="flex items-center gap-1"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.15 }}
+          >
+            <Globe
+              size={12}
+              style={{ color: ThemeColors.accent, opacity: 0.7 }}
+            />
+            <span className="text-xs font-medium capitalize opacity-80">
+              {config.language}
+            </span>
+          </motion.div>
+
+          {/* Dot separator */}
+          <motion.div
+            className="h-1 w-1 rounded-full opacity-40"
+            style={{ backgroundColor: ThemeColors.accent }}
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2 }}
+          />
+
+          {/* Voice */}
+          <motion.div
+            className="flex items-center gap-1"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.25 }}
+          >
+            <Mic
+              size={12}
+              style={{ color: ThemeColors.accent, opacity: 0.7 }}
+            />
+            <span className="text-xs font-medium capitalize opacity-80">
+              {config.voice}
+            </span>
+          </motion.div>
+
+          {/* User Name */}
+          {config.userName && (
+            <>
+              <motion.div
+                className="h-1 w-1 rounded-full opacity-40"
+                style={{ backgroundColor: ThemeColors.accent }}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.3 }}
+              />
+              <motion.div
+                className="flex items-center gap-1"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.35 }}
+              >
+                <User
+                  size={12}
+                  style={{ color: ThemeColors.accent, opacity: 0.7 }}
+                />
+                <span className="text-xs font-medium opacity-80">
+                  {config.userName}
+                </span>
+              </motion.div>
+            </>
+          )}
+
+          {/* Persona */}
+          {config.instructions && (
+            <>
+              <motion.div
+                className="h-1 w-1 rounded-full opacity-40"
+                style={{ backgroundColor: ThemeColors.accent }}
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.4 }}
+              />
+              <motion.div
+                className="flex items-center gap-1"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.45 }}
+              >
+                <div style={{ color: ThemeColors.accent, opacity: 0.7 }}>
+                  {getPersonaIcon(config.instructions)}
+                </div>
+                <span className="text-xs font-medium opacity-80">
+                  {getPersonaTitle(config.instructions)}
+                </span>
+              </motion.div>
+            </>
+          )}
+        </div>
+
+        {/* Session indicator */}
+        <motion.div
+          className="flex items-center gap-1 rounded-full px-2 py-1"
+          style={{
+            background: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)",
+          }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+        >
+          <motion.div
+            className="h-1.5 w-1.5 rounded-full"
+            style={{ backgroundColor: ThemeColors.accent }}
+            animate={{
+              opacity: [0.5, 1, 0.5],
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+          <span className="font-mono text-[10px] font-medium opacity-60">
+            {config.userId.slice(-4)}
+          </span>
+        </motion.div>
+      </motion.div>
+    </motion.div>
   );
 }

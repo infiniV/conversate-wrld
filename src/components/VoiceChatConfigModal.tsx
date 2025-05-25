@@ -13,7 +13,6 @@ import {
   User,
   Globe,
   Mic,
-  Clock,
   MessageCircle,
   ArrowRight,
   ChevronDown,
@@ -469,12 +468,12 @@ export const VoiceChatConfigModal = ({
   });
   // State to track if instructions are enabled
   // State for persona selection is managed through config.instructions
-
   // State to track if advanced options are enabled
   const [advancedEnabled, setAdvancedEnabled] = useState(false);
   const [sttModelEnabled, setSttModelEnabled] = useState(false);
   const [llmModelEnabled, setLlmModelEnabled] = useState(false);
   const [ttsModelEnabled, setTtsModelEnabled] = useState(false);
+  const [rtModeEnabled, setRtModeEnabled] = useState(false);
 
   const [errors, setErrors] = useState<
     Partial<Record<keyof LiveKitRoomConfig, string>>
@@ -542,11 +541,17 @@ export const VoiceChatConfigModal = ({
     } else {
       delete finalConfig.llm_model;
     }
-
     if (ttsModelEnabled && config.tts_model) {
       finalConfig.tts_model = config.tts_model;
     } else {
       delete finalConfig.tts_model;
+    }
+
+    // Include RT mode if enabled
+    if (rtModeEnabled) {
+      finalConfig.rt = true;
+    } else {
+      delete finalConfig.rt;
     }
 
     const roomName = encodeLiveKitRoomConfig(finalConfig);
@@ -795,32 +800,30 @@ export const VoiceChatConfigModal = ({
                     }
                     error={errors.voice}
                     placeholder="Choose your AI voice"
-                  />
+                  />{" "}
                 </motion.div>{" "}
-                {/* Greeting Option */}
+                {/* Real-Time Mode Toggle */}{" "}
                 <motion.div
                   className="flex items-center justify-between"
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.7 }}
                 >
-                  {" "}
                   <label className="flex items-center gap-1.5 text-xs font-medium">
-                    <Clock size={12} style={{ color: iconColor }} />
-                    Welcome greeting on join
+                    <Radio size={12} style={{ color: iconColor }} />
+                    Real-Time Mode
+                    <span className="text-[10px] opacity-60">(RT Demo)</span>
                   </label>
                   <motion.button
-                    onClick={() =>
-                      setConfig({ ...config, greet: !config.greet })
-                    }
+                    onClick={() => setRtModeEnabled(!rtModeEnabled)}
                     className="relative h-4 w-8 transition-all duration-300"
                     style={{
                       clipPath:
                         "polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px))",
-                      backgroundColor: config.greet
+                      backgroundColor: rtModeEnabled
                         ? `${ThemeColors.accent}30`
                         : "rgba(128,128,128,0.2)",
-                      border: `1px solid ${config.greet ? ThemeColors.accent : "rgba(128,128,128,0.3)"}`,
+                      border: `1px solid ${rtModeEnabled ? ThemeColors.accent : "rgba(128,128,128,0.3)"}`,
                     }}
                     whileTap={{ scale: 0.95 }}
                   >
@@ -829,12 +832,12 @@ export const VoiceChatConfigModal = ({
                       style={{
                         clipPath:
                           "polygon(0 0, calc(100% - 2px) 0, 100% 2px, 100% 100%, 2px 100%, 0 calc(100% - 2px))",
-                        backgroundColor: config.greet
+                        backgroundColor: rtModeEnabled
                           ? ThemeColors.accent
                           : "#6B7280",
                       }}
                       animate={{
-                        x: config.greet ? 16 : 2,
+                        x: rtModeEnabled ? 16 : 2,
                       }}
                       transition={{
                         type: "spring",
@@ -844,6 +847,35 @@ export const VoiceChatConfigModal = ({
                     />
                   </motion.button>
                 </motion.div>{" "}
+                {/* RT Mode Description */}
+                {rtModeEnabled && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="col-span-full"
+                  >
+                    <div
+                      className="rounded border p-3"
+                      style={{
+                        clipPath:
+                          "polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px))",
+                        backgroundColor: `${ThemeColors.accent}10`,
+                        border: `1px solid ${ThemeColors.accent}30`,
+                      }}
+                    >
+                      <p
+                        className={`text-xs ${isDark ? "text-white/80" : "text-black/80"}`}
+                      >
+                        <strong>Real-Time Mode:</strong> Uses optimized
+                        processing for ultra-low latency conversations. Advanced
+                        model selection is disabled as RT mode uses
+                        pre-configured models for best performance.
+                      </p>
+                    </div>
+                  </motion.div>
+                )}
                 {/* Assistant Persona Selection */}
                 <motion.div
                   initial={{ opacity: 0, x: -20 }}
@@ -861,19 +893,21 @@ export const VoiceChatConfigModal = ({
                       Choose a specialized AI assistant for your conversation
                     </p>
                   </div>
-
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-5">
                     {(
                       Object.keys(ASSISTANT_PERSONAS) as AssistantPersona[]
                     ).map((key) => {
-                      const persona = ASSISTANT_PERSONAS[key];                      const isSelected =
-                        config.instructions?.trim() === persona.instruction.trim();
+                      const persona = ASSISTANT_PERSONAS[key];
+                      const isSelected =
+                        config.instructions?.trim() ===
+                        persona.instruction.trim();
 
                       return (
                         <PersonaButton
                           key={persona.id}
                           persona={persona}
-                          isSelected={isSelected}                          onClick={() =>
+                          isSelected={isSelected}
+                          onClick={() =>
                             setConfig({
                               ...config,
                               instructions: isSelected
@@ -885,22 +919,33 @@ export const VoiceChatConfigModal = ({
                       );
                     })}
                   </div>
-
                   {/* Custom Instructions Text Area */}
                   <div className="mt-4 border-t border-[rgba(128,128,128,0.2)] pt-4">
                     <div className="mb-2">
                       <label className="flex items-center gap-1.5 text-xs font-medium">
                         <FileText size={12} style={{ color: iconColor }} />
                         Custom Instructions
-                        <span className="text-[10px] opacity-60">(Optional)</span>
+                        <span className="text-[10px] opacity-60">
+                          (Optional)
+                        </span>
                       </label>
-                      <p className={`mt-1 text-[10px] ${isDark ? "text-white/50" : "text-black/50"}`}>
-                        Or provide your own specific instructions for the AI assistant
+                      <p
+                        className={`mt-1 text-[10px] ${isDark ? "text-white/50" : "text-black/50"}`}
+                      >
+                        Or provide your own specific instructions for the AI
+                        assistant
                       </p>
                     </div>
-                    <textarea                      value={Object.values(ASSISTANT_PERSONAS).some(
-                        p => p.instruction.trim() === config.instructions?.trim()
-                      ) ? "" : (config.instructions ?? "")}
+                    <textarea
+                      value={
+                        Object.values(ASSISTANT_PERSONAS).some(
+                          (p) =>
+                            p.instruction.trim() ===
+                            config.instructions?.trim(),
+                        )
+                          ? ""
+                          : (config.instructions ?? "")
+                      }
                       onChange={(e) =>
                         setConfig({
                           ...config,
@@ -909,8 +954,8 @@ export const VoiceChatConfigModal = ({
                       }
                       className={`w-full resize-none rounded-none border bg-transparent px-3 py-2 text-xs backdrop-blur-sm transition-all duration-300 placeholder:text-[10px] placeholder:opacity-50 focus:outline-none focus:ring-0 ${
                         isDark
-                          ? "border-white/10 hover:border-white/20 focus:border-white/30 text-white placeholder-white/50"
-                          : "border-black/10 hover:border-black/20 focus:border-black/30 text-black placeholder-black/50"
+                          ? "border-white/10 text-white placeholder-white/50 hover:border-white/20 focus:border-white/30"
+                          : "border-black/10 text-black placeholder-black/50 hover:border-black/20 focus:border-black/30"
                       }`}
                       style={{
                         height: "60px",
@@ -919,234 +964,238 @@ export const VoiceChatConfigModal = ({
                       }}
                       placeholder="Enter custom instructions for how the AI should behave..."
                     />
-                  </div>
+                  </div>{" "}
                 </motion.div>
-                {/* Advanced Configuration Section */}
-                <motion.div
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.9 }}
-                >
-                  <div className="mb-4 flex items-center justify-between">
-                    {" "}
-                    <label className="flex items-center gap-1.5 text-xs font-medium">
-                      <Settings size={12} style={{ color: iconColor }} />
-                      Advanced Configuration
-                      <span className="text-[10px] opacity-60">(Optional)</span>
-                    </label>
-                    <motion.button
-                      onClick={() => setAdvancedEnabled(!advancedEnabled)}
-                      className="relative h-4 w-8 transition-all duration-300"
-                      style={{
-                        clipPath:
-                          "polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px))",
-                        backgroundColor: advancedEnabled
-                          ? `${ThemeColors.accent}30`
-                          : "rgba(128,128,128,0.2)",
-                        border: `1px solid ${advancedEnabled ? ThemeColors.accent : "rgba(128,128,128,0.3)"}`,
-                      }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <motion.div
-                        className="absolute top-0.5 h-3 w-3"
+                {/* Advanced Configuration Section - Hidden in RT Mode */}
+                {!rtModeEnabled && (
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.9 }}
+                  >
+                    <div className="mb-4 flex items-center justify-between">
+                      {" "}
+                      <label className="flex items-center gap-1.5 text-xs font-medium">
+                        <Settings size={12} style={{ color: iconColor }} />
+                        Advanced Configuration
+                        <span className="text-[10px] opacity-60">
+                          (Optional)
+                        </span>
+                      </label>
+                      <motion.button
+                        onClick={() => setAdvancedEnabled(!advancedEnabled)}
+                        className="relative h-4 w-8 transition-all duration-300"
                         style={{
                           clipPath:
-                            "polygon(0 0, calc(100% - 2px) 0, 100% 2px, 100% 100%, 2px 100%, 0 calc(100% - 2px))",
+                            "polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px))",
                           backgroundColor: advancedEnabled
-                            ? ThemeColors.accent
-                            : "#6B7280",
+                            ? `${ThemeColors.accent}30`
+                            : "rgba(128,128,128,0.2)",
+                          border: `1px solid ${advancedEnabled ? ThemeColors.accent : "rgba(128,128,128,0.3)"}`,
                         }}
-                        animate={{
-                          x: advancedEnabled ? 16 : 2,
-                        }}
-                        transition={{
-                          type: "spring",
-                          stiffness: 500,
-                          damping: 30,
-                        }}
-                      />
-                    </motion.button>
-                  </div>
-
-                  <AnimatePresence>
-                    {advancedEnabled && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="mb-4 space-y-4"
+                        whileTap={{ scale: 0.95 }}
                       >
-                        <p
-                          className={`mb-4 text-sm ${isDark ? "text-white/60" : "text-black/60"}`}
+                        <motion.div
+                          className="absolute top-0.5 h-3 w-3"
+                          style={{
+                            clipPath:
+                              "polygon(0 0, calc(100% - 2px) 0, 100% 2px, 100% 100%, 2px 100%, 0 calc(100% - 2px))",
+                            backgroundColor: advancedEnabled
+                              ? ThemeColors.accent
+                              : "#6B7280",
+                          }}
+                          animate={{
+                            x: advancedEnabled ? 16 : 2,
+                          }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 500,
+                            damping: 30,
+                          }}
+                        />
+                      </motion.button>
+                    </div>
+
+                    <AnimatePresence>
+                      {advancedEnabled && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          exit={{ opacity: 0, height: 0 }}
+                          transition={{ duration: 0.3 }}
+                          className="mb-4 space-y-4"
                         >
-                          Select optional AI models to use for this
-                          conversation. Default models will be used if none are
-                          selected.
-                        </p>{" "}
-                        {/* Model selection grid */}
-                        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
-                          {/* STT Model */}
-                          <ModelToggleButton
-                            label="Speech Recognition"
-                            icon={<Radio size={24} />}
-                            isEnabled={sttModelEnabled}
-                            setIsEnabled={(enabled) => {
-                              setSttModelEnabled(enabled);
-                              if (enabled && !config.stt_model) {
-                                setConfig({
-                                  ...config,
-                                  stt_model: "whisper-large-v3-turbo",
-                                });
-                              }
-                            }}
-                            selectedModel={config.stt_model ?? ""}
-                          />{" "}
-                          {/* LLM Model */}
-                          <ModelToggleButton
-                            label="Language Model"
-                            icon={<Brain size={24} />}
-                            isEnabled={llmModelEnabled}
-                            setIsEnabled={(enabled) => {
-                              setLlmModelEnabled(enabled);
-                              if (enabled && !config.llm_model) {
-                                setConfig({
-                                  ...config,
-                                  llm_model: "llama-3.3-70b-versatile",
-                                });
-                              }
-                            }}
-                            selectedModel={config.llm_model ?? ""}
-                          />{" "}
-                          {/* TTS Model */}
-                          <ModelToggleButton
-                            label="Voice Synthesis"
-                            icon={<Volume2 size={24} />}
-                            isEnabled={ttsModelEnabled}
-                            setIsEnabled={(enabled) => {
-                              setTtsModelEnabled(enabled);
-                              if (enabled && !config.tts_model) {
-                                setConfig({
-                                  ...config,
-                                  tts_model: "gpt-4o-mini-tts",
-                                });
-                              }
-                            }}
-                            selectedModel={config.tts_model ?? ""}
-                          />
-                        </div>
-                        {/* STT Model Selection */}
-                        <AnimatePresence>
-                          {sttModelEnabled && (
-                            <motion.div
-                              initial={{ opacity: 0, y: -10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -10 }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              {" "}
-                              <div className="mt-4">
-                                <CustomDropdown
-                                  label="Speech-to-Text Model"
-                                  icon={
-                                    <Radio
-                                      size={14}
-                                      style={{ color: iconColor }}
-                                    />
-                                  }
-                                  value={config.stt_model ?? ""}
-                                  options={STT_MODELS}
-                                  onChange={(value) =>
-                                    setConfig({ ...config, stt_model: value })
-                                  }
-                                  placeholder="Select a speech recognition model"
-                                />
-                                <p
-                                  className={`mt-2 text-xs ${isDark ? "text-white/50" : "text-black/50"}`}
-                                >
-                                  Higher quality models provide more accurate
-                                  transcription at the cost of speed.
-                                </p>
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                        {/* LLM Model Selection */}
-                        <AnimatePresence>
-                          {llmModelEnabled && (
-                            <motion.div
-                              initial={{ opacity: 0, y: -10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -10 }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              {" "}
-                              <div className="mt-4">
-                                <CustomDropdown
-                                  label="Language Model"
-                                  icon={
-                                    <Brain
-                                      size={14}
-                                      style={{ color: iconColor }}
-                                    />
-                                  }
-                                  value={config.llm_model ?? ""}
-                                  options={LLM_MODELS}
-                                  onChange={(value) =>
-                                    setConfig({ ...config, llm_model: value })
-                                  }
-                                  placeholder="Select a language model"
-                                />
-                                <p
-                                  className={`mt-2 text-xs ${isDark ? "text-white/50" : "text-black/50"}`}
-                                >
-                                  Larger models offer more sophisticated
-                                  responses but may be slower.
-                                </p>
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                        {/* TTS Model Selection */}
-                        <AnimatePresence>
-                          {ttsModelEnabled && (
-                            <motion.div
-                              initial={{ opacity: 0, y: -10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: -10 }}
-                              transition={{ duration: 0.2 }}
-                            >
-                              {" "}
-                              <div className="mt-4">
-                                <CustomDropdown
-                                  label="Text-to-Speech Model"
-                                  icon={
-                                    <Volume2
-                                      size={14}
-                                      style={{ color: iconColor }}
-                                    />
-                                  }
-                                  value={config.tts_model ?? ""}
-                                  options={TTS_MODELS}
-                                  onChange={(value) =>
-                                    setConfig({ ...config, tts_model: value })
-                                  }
-                                  placeholder="Select a speech synthesis model"
-                                />
-                                <p
-                                  className={`mt-2 text-xs ${isDark ? "text-white/50" : "text-black/50"}`}
-                                >
-                                  HD models provide higher quality audio with
-                                  more natural intonation.
-                                </p>
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
+                          <p
+                            className={`mb-4 text-sm ${isDark ? "text-white/60" : "text-black/60"}`}
+                          >
+                            Select optional AI models to use for this
+                            conversation. Default models will be used if none
+                            are selected.
+                          </p>{" "}
+                          {/* Model selection grid */}
+                          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                            {/* STT Model */}
+                            <ModelToggleButton
+                              label="Speech Recognition"
+                              icon={<Radio size={24} />}
+                              isEnabled={sttModelEnabled}
+                              setIsEnabled={(enabled) => {
+                                setSttModelEnabled(enabled);
+                                if (enabled && !config.stt_model) {
+                                  setConfig({
+                                    ...config,
+                                    stt_model: "whisper-large-v3-turbo",
+                                  });
+                                }
+                              }}
+                              selectedModel={config.stt_model ?? ""}
+                            />{" "}
+                            {/* LLM Model */}
+                            <ModelToggleButton
+                              label="Language Model"
+                              icon={<Brain size={24} />}
+                              isEnabled={llmModelEnabled}
+                              setIsEnabled={(enabled) => {
+                                setLlmModelEnabled(enabled);
+                                if (enabled && !config.llm_model) {
+                                  setConfig({
+                                    ...config,
+                                    llm_model: "llama-3.3-70b-versatile",
+                                  });
+                                }
+                              }}
+                              selectedModel={config.llm_model ?? ""}
+                            />{" "}
+                            {/* TTS Model */}
+                            <ModelToggleButton
+                              label="Voice Synthesis"
+                              icon={<Volume2 size={24} />}
+                              isEnabled={ttsModelEnabled}
+                              setIsEnabled={(enabled) => {
+                                setTtsModelEnabled(enabled);
+                                if (enabled && !config.tts_model) {
+                                  setConfig({
+                                    ...config,
+                                    tts_model: "gpt-4o-mini-tts",
+                                  });
+                                }
+                              }}
+                              selectedModel={config.tts_model ?? ""}
+                            />
+                          </div>
+                          {/* STT Model Selection */}
+                          <AnimatePresence>
+                            {sttModelEnabled && (
+                              <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.2 }}
+                              >
+                                {" "}
+                                <div className="mt-4">
+                                  <CustomDropdown
+                                    label="Speech-to-Text Model"
+                                    icon={
+                                      <Radio
+                                        size={14}
+                                        style={{ color: iconColor }}
+                                      />
+                                    }
+                                    value={config.stt_model ?? ""}
+                                    options={STT_MODELS}
+                                    onChange={(value) =>
+                                      setConfig({ ...config, stt_model: value })
+                                    }
+                                    placeholder="Select a speech recognition model"
+                                  />
+                                  <p
+                                    className={`mt-2 text-xs ${isDark ? "text-white/50" : "text-black/50"}`}
+                                  >
+                                    Higher quality models provide more accurate
+                                    transcription at the cost of speed.
+                                  </p>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                          {/* LLM Model Selection */}
+                          <AnimatePresence>
+                            {llmModelEnabled && (
+                              <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.2 }}
+                              >
+                                {" "}
+                                <div className="mt-4">
+                                  <CustomDropdown
+                                    label="Language Model"
+                                    icon={
+                                      <Brain
+                                        size={14}
+                                        style={{ color: iconColor }}
+                                      />
+                                    }
+                                    value={config.llm_model ?? ""}
+                                    options={LLM_MODELS}
+                                    onChange={(value) =>
+                                      setConfig({ ...config, llm_model: value })
+                                    }
+                                    placeholder="Select a language model"
+                                  />
+                                  <p
+                                    className={`mt-2 text-xs ${isDark ? "text-white/50" : "text-black/50"}`}
+                                  >
+                                    Larger models offer more sophisticated
+                                    responses but may be slower.
+                                  </p>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                          {/* TTS Model Selection */}
+                          <AnimatePresence>
+                            {ttsModelEnabled && (
+                              <motion.div
+                                initial={{ opacity: 0, y: -10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -10 }}
+                                transition={{ duration: 0.2 }}
+                              >
+                                {" "}
+                                <div className="mt-4">
+                                  <CustomDropdown
+                                    label="Text-to-Speech Model"
+                                    icon={
+                                      <Volume2
+                                        size={14}
+                                        style={{ color: iconColor }}
+                                      />
+                                    }
+                                    value={config.tts_model ?? ""}
+                                    options={TTS_MODELS}
+                                    onChange={(value) =>
+                                      setConfig({ ...config, tts_model: value })
+                                    }
+                                    placeholder="Select a speech synthesis model"
+                                  />
+                                  <p
+                                    className={`mt-2 text-xs ${isDark ? "text-white/50" : "text-black/50"}`}
+                                  >
+                                    HD models provide higher quality audio with
+                                    more natural intonation.
+                                  </p>
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>{" "}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                )}
               </motion.div>{" "}
               {/* Actions */}{" "}
               <motion.div
